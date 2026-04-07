@@ -1,24 +1,24 @@
-# StackVault
+# Gexra
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-StackVault is a modern version control system inspired by Git. Manage your code locally with the CLI, sync to a remote server, and browse repositories through a beautiful web interface.
+Gexra is a modern version control system. Manage your code locally with the CLI, sync to a remote server, and browse repositories through a beautiful web interface.
 
 ## Features
 
 - **Offline-first CLI** - Work locally without a server, sync when ready
-- **Staging Area** - Stage specific files before committing (like `git add`)
+- **Staging Area** - Stage specific files before committing
 - **Remote Sync** - Push/pull commits to a central server
 - **Modern Web UI** - Browse repos, view commits, and explore code files
 - **JWT Authentication** - Secure token-based auth for user accounts
 - **File Snapshots** - SHA256 hashes track file changes
-- **.svignore Support** - Exclude files from versioning
+- **.gexraignore Support** - Exclude files from versioning
 
 ## Architecture
 
 ```
-StackVault/
-├── cli/        # Command-line tool
+gexra/
+├── cli/        # Command-line tool (gexra)
 ├── server/     # Express API + PostgreSQL
 ├── web/        # React + Vite frontend
 └── docker-compose.yml
@@ -178,7 +178,7 @@ sv clone https://server/repo --path src  # Clone only src/
 
 ## Project Structure
 
-Each StackVault project contains a `.sv/` folder that stores:
+Each Gexra project contains a `.sv/` folder that stores:
 - Commits history
 - File blobs (snapshots)
 - Config (remote URL, auth token)

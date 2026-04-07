@@ -16,8 +16,8 @@ import { loginCommand, registerCommand, createRepoCommand } from '../commands/au
 const program = new Command();
 
 program
-  .name('sv')
-  .description('StackVault: An open-source mini version control system inspired by Git')
+  .name('gexra')
+  .description('Gexra: A modern version control system with CLI and web interface')
   .version('1.0.0');
 
 program

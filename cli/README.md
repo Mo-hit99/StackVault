@@ -1,6 +1,6 @@
-# StackVault CLI
+# Gexra CLI
 
-A modern version control system with CLI and web interface. Inspired by Git, built for the cloud.
+A modern version control system with CLI and web interface. Built for the cloud.
 
 ## Main Features
 
@@ -65,7 +65,7 @@ sv pull origin main -p web
 Connect to your server:
 
 ```bash
-sv remote add origin https://your-server.com
+gexra remote add origin https://your-server.com
 ```
 
 ### 🔹 Authentication
@@ -73,8 +73,8 @@ sv remote add origin https://your-server.com
 Login to access private repositories:
 
 ```bash
-sv register username email password --url https://your-server.com
-sv login email password --url https://your-server.com
+gexra register username email password --url https://your-server.com
+gexra login email password --url https://your-server.com
 ```
 
 ## Installation
@@ -82,8 +82,26 @@ sv login email password --url https://your-server.com
 ### From npm (Published Package)
 
 ```bash
-npm install -g stackvault
-sv --help
+npm install -g gexra
+gexra --help
+```
+
+Or build locally:
+
+```bash
+git clone https://github.com/anomalyco/stackvault.git
+cd stackvault/cli
+npm install
+npm run build
+npm link
+```
+
+Now run `gexra` anywhere:
+
+```bash
+gexra init
+gexra add .
+gexra commit -m "Initial commit"
 ```
 
 ### From Source
@@ -108,45 +126,45 @@ sv commit -m "Initial commit"
 
 ```bash
 # 1. Initialize repository
-sv init
+gexra init
 
 # 2. Add files
-sv add .
+gexra add .
 
 # 3. Commit
-sv commit -m "Initial commit"
+gexra commit -m "Initial commit"
 
 # 4. Connect to server
-sv remote add origin https://your-server.com
-sv login your@email.com password --url https://your-server.com
+gexra remote add origin https://your-server.com
+gexra login your@email.com password --url https://your-server.com
 
 # 5. Push
-sv push origin main
+gexra push origin main
 ```
 
 ## All Commands
 
 | Command | Description |
 |---------|-------------|
-| `sv init` | Initialize repository |
-| `sv add [files]` | Stage files |
-| `sv reset [files]` | Unstage files |
-| `sv status` | Show working tree status |
-| `sv commit -m "msg"` | Create commit |
-| `sv log` | View commit history |
-| `sv remote add <name> <url>` | Add remote |
-| `sv push [remote] [branch]` | Push to remote |
-| `sv pull [remote] [branch]` | Pull from remote |
-| `sv clone <url>` | Clone repository |
-| `sv login <email> <pass>` | Login |
-| `sv register <user> <email> <pass>` | Register |
+| `gexra init` | Initialize repository |
+| `gexra add [files]` | Stage files |
+| `gexra reset [files]` | Unstage files |
+| `gexra status` | Show working tree status |
+| `gexra commit -m "msg"` | Create commit |
+| `gexra log` | View commit history |
+| `gexra remote add <name> <url>` | Add remote |
+| `gexra push [remote] [branch]` | Push to remote |
+| `gexra pull [remote] [branch]` | Pull from remote |
+| `gexra clone <url>` | Clone repository |
+| `gexra login <email> <pass>` | Login |
+| `gexra register <user> <email> <pass>` | Register |
 
 ## Options
 
 ```bash
-sv add --help
-sv commit --help
-sv clone --path src --help   # Partial clone
+gexra add --help
+gexra commit --help
+gexra clone --path src --help   # Partial clone
 ```
 
 ## Server URL Configuration
