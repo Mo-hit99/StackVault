@@ -6,8 +6,8 @@ import path from 'path';
 export const remoteCommand = async (name: string, url: string): Promise<void> => {
   try {
     const cwd = process.cwd();
-    if (!(await fs.pathExists(path.join(cwd, '.sv')))) {
-      throw new Error('Not a StackVault repository');
+    if (!(await fs.pathExists(path.join(cwd, '.gexra')))) {
+      throw new Error('Not a Gexra repository');
     }
 
     const config = await readConfig();

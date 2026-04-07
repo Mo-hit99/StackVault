@@ -40,7 +40,7 @@ export interface IndexEntry {
  */
 export const initRepo = async (): Promise<void> => {
   if (await fs.pathExists(SV_DIR)) {
-    throw new Error('StackVault repository already exists.');
+    throw new Error('gexra repository already exists.');
   }
 
   await fs.ensureDir(SV_COMMITS_DIR);

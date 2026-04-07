@@ -9,7 +9,7 @@ export const pushCommand = async (remoteName?: string, branch?: string, pathFilt
   try {
     const cwd = process.cwd();
     if (!(await fs.pathExists(path.join(cwd, '.sv')))) {
-      throw new Error('Not a StackVault repository');
+      throw new Error('Not a Gexra repository');
     }
 
     const stack = new CommitStack();

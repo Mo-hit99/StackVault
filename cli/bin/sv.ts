@@ -55,14 +55,14 @@ program
 
 program
   .command('login <email> <password>')
-  .description('Login to StackVault server')
+  .description('Login to Gexra server')
   .option('-u, --url <url>', 'Server URL (e.g., http://localhost:5000)')
   .action((email: string, password: string, options: { url?: string }) => 
     loginCommand(email, password, options.url));
 
 program
   .command('register <username> <email> <password>')
-  .description('Register a new StackVault account')
+  .description('Register a new Gexra account')
   .option('-u, --url <url>', 'Server URL (e.g., http://localhost:5000)')
   .action((username: string, email: string, password: string, options: { url?: string }) => 
     registerCommand(username, email, password, options.url));

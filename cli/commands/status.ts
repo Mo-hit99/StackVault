@@ -8,8 +8,8 @@ import * as logger from '../utils/logger.js';
 export const statusCommand = async (): Promise<void> => {
   try {
     const cwd = process.cwd();
-    if (!(await fs.pathExists(path.join(cwd, '.sv')))) {
-      throw new Error('Not a StackVault repository (or any of the parent directories)');
+    if (!(await fs.pathExists(path.join(cwd, '.gexra')))) {
+      throw new Error('Not a Gexra repository (or any of the parent directories)');
     }
 
     const stack = new CommitStack();

@@ -12,7 +12,7 @@ export const commitCommand = async (message: string, pathFilter?: string): Promi
   try {
     const cwd = process.cwd();
     if (!(await fs.pathExists(path.join(cwd, '.gexra')))) {
-      throw new Error('Not a StackVault repository (or any of the parent directories)');
+      throw new Error('Not a Gexra repository (or any of the parent directories)');
     }
 
     const stack = new CommitStack();
