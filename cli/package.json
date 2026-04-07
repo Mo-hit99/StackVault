@@ -1,6 +1,6 @@
 {
   "name": "gexra",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Gexra - A modern version control system with CLI and web interface",
   "type": "module",
   "bin": {
