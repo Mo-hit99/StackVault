@@ -2,12 +2,13 @@ name: Publish CLI to npm
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
       
@@ -16,11 +17,17 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
           
-      - run: npm install
+      - run: npm ci
         working-directory: ./cli
         
       - run: npm run build
         working-directory: ./cli
+
+      # Auto bump version
+      - run: npm version patch --no-git-tag-version
+        working-directory: ./cli
+
+      - run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
         
       - run: npm publish --access public
         working-directory: ./cli
