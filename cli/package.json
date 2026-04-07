@@ -1,9 +1,17 @@
 {
   "name": "gexra",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Gexra - A modern version control system with CLI and web interface",
   "type": "module",
-  "bin": "dist/bin/sv.js",
+  "bin": {
+    "gexra": "dist/bin/sv.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "node ./node_modules/typescript/bin/tsc",
     "watch": "node ./node_modules/typescript/bin/tsc -w",
