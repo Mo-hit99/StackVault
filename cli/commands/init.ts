@@ -12,14 +12,14 @@ export const initCommand = async (): Promise<void> => {
     await initRepo();
     
     // Copy default ignore to current directory
-    const defaultIgnorePath = path.join(__dirname, '../../.svignore.default');
-    const targetIgnorePath = path.join(process.cwd(), '.svignore');
+    const defaultIgnorePath = path.join(__dirname, '../../.gexraignore.default');
+    const targetIgnorePath = path.join(process.cwd(), '.gexraignore');
     
     if (await fs.pathExists(defaultIgnorePath) && !(await fs.pathExists(targetIgnorePath))) {
       await fs.copy(defaultIgnorePath, targetIgnorePath);
     }
 
-    logger.success('Initialized empty StackVault repo');
+    logger.success('Initialized empty Gexra repo');
   } catch (err: any) {
     logger.error(err.message);
     process.exit(1);

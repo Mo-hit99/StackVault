@@ -11,7 +11,7 @@ import { Commit } from '../core/storage.js';
 export const commitCommand = async (message: string, pathFilter?: string): Promise<void> => {
   try {
     const cwd = process.cwd();
-    if (!(await fs.pathExists(path.join(cwd, '.sv')))) {
+    if (!(await fs.pathExists(path.join(cwd, '.gexra')))) {
       throw new Error('Not a StackVault repository (or any of the parent directories)');
     }
 

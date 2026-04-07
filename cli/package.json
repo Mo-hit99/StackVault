@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Gexra - A modern version control system with CLI and web interface",
   "type": "module",
-  "bin": {
-    "gexra": "./dist/bin/sv.js"
-  },
+  "bin": "dist/bin/sv.js",
   "scripts": {
     "build": "node ./node_modules/typescript/bin/tsc",
     "watch": "node ./node_modules/typescript/bin/tsc -w",

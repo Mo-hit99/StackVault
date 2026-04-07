@@ -47,7 +47,7 @@ export const cloneCommand = async (url: string, options: { path?: string }): Pro
     await initRepo();
     
     // Write config pointing to origin
-    const configPath = path.join('.sv', 'config');
+    const configPath = path.join('.gexra', 'config');
     await fs.outputJson(configPath, { 
       remote: urlObj.origin, 
       username,

@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 
-const SV_DIR = '.sv';
+const SV_DIR = '.gexra';
 const SV_COMMITS_DIR = path.join(SV_DIR, 'commits');
 const SV_OBJECTS_DIR = path.join(SV_DIR, 'objects');
 const SV_HEAD = path.join(SV_DIR, 'HEAD');
