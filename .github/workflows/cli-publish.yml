@@ -9,6 +9,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     
     steps:
       - name: Checkout
@@ -28,14 +31,8 @@ jobs:
         run: npm run build
         working-directory: ./cli
       
-      - name: Configure npm
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > $GITHUB_WORKSPACE/.npmrc
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
       - name: Publish to npm
-        run: npm publish --access public --registry https://registry.npmjs.org/
+        run: npm publish --access public
         working-directory: ./cli
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
