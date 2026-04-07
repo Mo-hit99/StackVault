@@ -1,0 +1,10 @@
+{
+  "id": "5efc209adedc2bc6e4d641b0c8205c9eed7d264b30aad13cae114868b845c863",
+  "message": "initial commit",
+  "timestamp": "2026-04-07T10:42:58.711Z",
+  "parent": "null",
+  "author": "localuser",
+  "snapshot": {
+    "test.txt": "e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317"
+  }
+}
