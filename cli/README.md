@@ -9,11 +9,11 @@ A modern version control system with CLI and web interface. Built for the cloud.
 Stage files with partial path:
 
 ```bash
-sv add .                    # Stage all files
-sv add file.ts src/         # Stage specific files/folders
-sv add -p src              # Stage only src/ folder
-sv status                  # View staged vs unstaged
-sv reset file.ts            # Unstage a file
+gexra add .                    # Stage all files
+gexra add file.ts src/         # Stage specific files/folders
+gexra add -p src              # Stage only src/ folder
+gexra status                  # View staged vs unstaged
+gexra reset file.ts            # Unstage a file
 ```
 
 ### 🔹 Commit
@@ -21,8 +21,8 @@ sv reset file.ts            # Unstage a file
 Create commits with optional path filter:
 
 ```bash
-sv commit -m "Add login"       # Full commit
-sv commit -m "Update" -p src  # Partial commit (only src/)
+gexra commit -m "Add login"       # Full commit
+gexra commit -m "Update" -p src  # Partial commit (only src/)
 ```
 
 ### 🔹 Push & Pull
@@ -30,10 +30,10 @@ sv commit -m "Update" -p src  # Partial commit (only src/)
 Sync with remote, optionally partial:
 
 ```bash
-sv push origin main            # Full push
-sv push origin main -p src    # Partial push (only src/)
-sv pull origin main           # Full pull
-sv pull origin main -p src    # Partial pull (only src/)
+gexra push origin main            # Full push
+gexra push origin main -p src    # Partial push (only src/)
+gexra pull origin main           # Full pull
+gexra pull origin main -p src    # Partial pull (only src/)
 ```
 
 ### 🔹 Clone
@@ -41,23 +41,23 @@ sv pull origin main -p src    # Partial pull (only src/)
 Clone with partial path:
 
 ```bash
-sv clone https://your-server.com/api/repos/user/repo
-sv clone https://your-server.com/api/repos/user/repo --path src
+gexra clone https://your-server.com/api/repos/user/repo
+gexra clone https://your-server.com/api/repos/user/repo --path src
 ```
 
 ### 🔹 Full Examples
 
 ```bash
 # Clone only frontend
-sv clone https://server.com/api/repos/user/repo --path web
+gexra clone https://server.com/api/repos/user/repo --path web
 
 # Work on API only  
-sv add -p api
-sv commit -m "Update API" -p api
-sv push origin main -p api
+gexra add -p api
+gexra commit -m "Update API" -p api
+gexra push origin main -p api
 
 # Pull only web changes
-sv pull origin main -p web
+gexra pull origin main -p web
 ```
 
 ### 🔹 Remote Configuration
@@ -114,12 +114,12 @@ npm run build
 npm link
 ```
 
-Now run `sv` anywhere:
+Now run `gexra` anywhere:
 
 ```bash
-sv init
-sv add .
-sv commit -m "Initial commit"
+gexra init
+gexra add .
+gexra commit -m "Initial commit"
 ```
 
 ## Quick Start
@@ -172,13 +172,13 @@ gexra clone --path src --help   # Partial clone
 When deploying to Vercel:
 
 ```bash
-sv remote add origin https://your-app.vercel.app
+gexra remote add origin https://your-app.vercel.app
 ```
 
 For local development:
 
 ```bash
-sv remote add origin http://localhost:5000
+gexra remote add origin http://localhost:5000
 ```
 
 **Note:** Use the base URL only (no `/api` path).

@@ -7,7 +7,7 @@ HEAD → commit_3 → commit_2 → commit_1 → null
 ```
 Each commit holds metadata (timestamp, author, generic string keys) alongside a `snapshot` JSON structure tracking absolute file hashes resolving to Blob files globally.
 
-## Local Storage (`.stackvault/`)
+## Local Storage (`.gexra/`)
 - `HEAD`: Text tracking pointer generic active ID string.
 - `config`: Authentication tokens mapping remote JSON strings.
 - `commits/`: Individual node blocks resolving SHA256 hashes cleanly.

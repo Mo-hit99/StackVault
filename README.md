@@ -1,6 +1,6 @@
 # Gexra
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.gexrag)
 
 Gexra is a modern version control system. Manage your code locally with the CLI, sync to a remote server, and browse repositories through a beautiful web interface.
 
@@ -39,14 +39,14 @@ gexra/
 ### Install CLI Globally from npm
 
 ```bash
-npm install -g stackvault
+npm install -g gexra
 ```
 
 ### Or Install from Source
 
 ```bash
-git clone https://github.com/anomalyco/stackvault.git
-cd stackvault/cli
+git clone https://github.com/anomalyco/gexra.git
+cd gexra/cli
 npm install
 npm run build
 npm link
@@ -65,7 +65,7 @@ cd ../web && npm install
 **Server** (`server/.env`):
 ```env
 PORT=5000
-DATABASE_URL=postgresql://postgres:password@localhost:5432/stackvault
+DATABASE_URL=postgresql://postgres:password@localhost:5432/gexra
 JWT_SECRET=your_secret_here
 JWT_EXPIRES_IN=7d
 ```
@@ -100,32 +100,32 @@ cd cli && npm run build && npm link
 ```bash
 # Initialize repository
 mkdir my-project && cd my-project
-sv init
+gexra init
 
 # Stage and commit changes
-sv add .                    # Stage all files
-sv add file.txt             # Stage specific file
-sv add -p src             # Stage only src/ folder
-sv status                 # View staged vs unstaged
-sv commit -m "Initial commit"
-sv commit -m "Update" -p src  # Partial commit (only src/)
-sv log                     # View commit history
+gexra add .                    # Stage all files
+gexra add file.txt             # Stage specific file
+gexra add -p src             # Stage only src/ folder
+gexra status                 # View staged vs unstaged
+gexra commit -m "Initial commit"
+gexra commit -m "Update" -p src  # Partial commit (only src/)
+gexra log                     # View commit history
 ```
 
 ### Connect to Server
 ```bash
 # Register or login (--url required on first use)
-sv login my@email.com password --url http://localhost:5000
+gexra login my@email.com password --url http://localhost:5000
 
 # Set remote (base URL of your server ONLY, not the full path)
-sv remote add origin http://localhost:5000
+gexra remote add origin http://localhost:5000
 
 # Create remote repository (must match your project name)
-sv create-repo my-project -d "My project description"
+gexra create-repo my-project -d "My project description"
 
 # Push commits
-sv push origin main
-sv push origin main -p src   # Partial push (only src/)
+gexra push origin main
+gexra push origin main -p src   # Partial push (only src/)
 ```
 
 **Note:** The remote URL should be the base server URL (e.g., `http://localhost:5000`), not a full path.
@@ -133,12 +133,12 @@ sv push origin main -p src   # Partial push (only src/)
 ### Clone & Sync
 ```bash
 # Clone existing repo
-sv clone http://localhost:5000/api/repos/otheruser/their-repo
-sv clone http://localhost:5000/api/repos/otheruser/their-repo --path web
+gexra clone http://localhost:5000/api/repos/otheruser/their-repo
+gexra clone http://localhost:5000/api/repos/otheruser/their-repo --path web
 
 # Pull latest changes
-sv pull origin main
-sv pull origin main -p web  # Partial pull (only web/)
+gexra pull origin main
+gexra pull origin main -p web  # Partial pull (only web/)
 ```
 
 ### Partial Sync (Folders/Files)
@@ -146,49 +146,49 @@ sv pull origin main -p web  # Partial pull (only web/)
 Work with specific folders:
 
 ```bash
-sv add -p api              # Stage only api/ folder
-sv commit -m "API update" -p api    # Commit only api/ changes
-sv push origin main -p api       # Push only api/ files
-sv pull origin main -p web        # Pull only web/ files
-sv clone https://server/repo --path src  # Clone only src/
+gexra add -p api              # Stage only api/ folder
+gexra commit -m "API update" -p api    # Commit only api/ changes
+gexra push origin main -p api       # Push only api/ files
+gexra pull origin main -p web        # Pull only web/ files
+gexra clone https://server/repo --path src  # Clone only src/
 ```
 
 ## CLI Commands
 
 | Command | Description |
 |---------|-------------|
-| `sv init` | Initialize a local repository |
-| `sv add [files...]` | Stage file(s) for commit |
-| `sv add -p <path>` | Stage files under path |
-| `sv reset [files...]` | Unstage file(s) |
-| `sv status` | Show working tree status |
-| `sv commit -m "msg"` | Create a commit |
-| `sv commit -m "msg" -p <path>` | Partial commit |
-| `sv log` | Show commit history |
-| `sv register <user> <email> <pass> --url <url>` | Create account |
-| `sv login <email> <pass> --url <url>` | Login to server |
-| `sv create-repo <name> [-d desc] [-p]` | Create repo on server |
-| `sv remote add <name> <url>` | Configure remote server |
-| `sv push [remote] [branch]` | Push commits to remote |
-| `sv push -p <path>` | Partial push |
-| `sv pull [remote] [branch]` | Pull commits from remote |
-| `sv pull -p <path>` | Partial pull |
-| `sv clone <url>` | Clone a repository |
-| `sv clone <url> --path <path>` | Partial clone |
+| `gexra init` | Initialize a local repository |
+| `gexra add [files...]` | Stage file(s) for commit |
+| `gexra add -p <path>` | Stage files under path |
+| `gexra reset [files...]` | Unstage file(s) |
+| `gexra status` | Show working tree status |
+| `gexra commit -m "msg"` | Create a commit |
+| `gexra commit -m "msg" -p <path>` | Partial commit |
+| `gexra log` | Show commit history |
+| `gexra register <user> <email> <pass> --url <url>` | Create account |
+| `gexra login <email> <pass> --url <url>` | Login to server |
+| `gexra create-repo <name> [-d desc] [-p]` | Create repo on server |
+| `gexra remote add <name> <url>` | Configure remote server |
+| `gexra push [remote] [branch]` | Push commits to remote |
+| `gexra push -p <path>` | Partial push |
+| `gexra pull [remote] [branch]` | Pull commits from remote |
+| `gexra pull -p <path>` | Partial pull |
+| `gexra clone <url>` | Clone a repository |
+| `gexra clone <url> --path <path>` | Partial clone |
 
 ## Project Structure
 
-Each Gexra project contains a `.sv/` folder that stores:
+Each Gexra project contains a `.gexra/` folder that stores:
 - Commits history
 - File blobs (snapshots)
 - Config (remote URL, auth token)
 - Staging area
 
-**Warning:** Deleting `.sv/` folder will lose all local commit history!
+**Warning:** Deleting `.gexra/` folder will lose all local commit history!
 
 ## Ignoring Files
 
-Create a `.svignore` file to exclude files from versioning:
+Create a `.gexraignore` file to exclude files from versioning:
 
 ```
 node_modules/
@@ -196,7 +196,7 @@ node_modules/
 dist/
 ```
 
-The CLI automatically creates a default `.svignore` when you run `sv init`. The `.sv/` folder is automatically ignored.
+The CLI automatically creates a default `.gexraignore` when you run `gexra init`. The `.gexra/` folder is automatically ignored.
 
 ## Web Interface
 
@@ -249,12 +249,12 @@ The web app runs at `http://localhost:5173`:
 
 ```
 1. mkdir project && cd project
-2. sv init
-3. sv add . && sv commit -m "Initial commit"
-4. sv login email password --url http://localhost:5000
-5. sv remote add origin http://localhost:5000
-6. sv create-repo my-project
-7. sv push
+2. gexra init
+3. gexra add . && gexra commit -m "Initial commit"
+4. gexra login email password --url http://localhost:5000
+5. gexra remote add origin http://localhost:5000
+6. gexra create-repo my-project
+7. gexra push
 8. Open http://localhost:5173 to view your repo
 ```
 
@@ -270,8 +270,8 @@ The web app runs at `http://localhost:5173`:
 - Check `VITE_API_URL` in web `.env`
 
 **CLI push/pull fails:**
-- Run `sv login` first for authenticated commands
-- Verify `sv remote add` points to correct URL
+- Run `gexra login` first for authenticated commands
+- Verify `gexra remote add` points to correct URL
 - Check server is accessible
 
 **TypeScript errors on build:**
