@@ -7,8 +7,8 @@
     "sv": "./dist/bin/sv.js"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
+    "build": "node ./node_modules/typescript/bin/tsc",
+    "watch": "node ./node_modules/typescript/bin/tsc -w",
     "start": "node dist/bin/sv.js"
   },
   "dependencies": {

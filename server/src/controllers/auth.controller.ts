@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UserModel } from '../models/user.model.js';
 import { JWT_SECRET, JWT_EXPIRES_IN } from '../config/env.js';
+import { PasswordService } from '../services/password.service.js';
 import { User, UserPayload } from '../types/index.js';
 
 const generateToken = (user: { id: number, username: string }) => {
@@ -26,7 +26,7 @@ export const AuthController = {
       const existingUsername = await UserModel.findByUsername(username);
       if (existingUsername) return res.status(400).json({ message: 'Username already exists' });
 
-      const passwordHash = await bcrypt.hash(password, 10);
+      const passwordHash = await PasswordService.hash(password);
       const user = await UserModel.create({ username, email, passwordHash });
 
       const token = generateToken(user);
@@ -47,7 +47,7 @@ export const AuthController = {
       if (!user) return res.status(401).json({ message: 'Invalid credentials '});
 
       // User object comes from DB, check password
-      const isMatch = await bcrypt.compare(password, user.password_hash);
+      const isMatch = await PasswordService.compare(password, user.password_hash);
       if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
       const token = generateToken({ id: user.id, username: user.username });
