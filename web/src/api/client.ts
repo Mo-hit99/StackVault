@@ -37,3 +37,15 @@ export const api = {
   put: (path: string, body?: any) => request('PUT', path, body),
   delete: (path: string) => request('DELETE', path),
 };
+
+export const reposApi = {
+  list: (username: string, page = 1, limit = 12) => api.get(`/repos/${username}?page=${page}&limit=${limit}`),
+  get: (username: string, reponame: string) => api.get(`/repos/${username}/${reponame}`),
+  create: (data: { name: string; description?: string; is_private?: boolean }) => api.post('/repos/create', data),
+  update: (username: string, reponame: string, data: { name?: string; description?: string; is_private?: boolean }) => api.put(`/repos/${username}/${reponame}`, data),
+  delete: (username: string, reponame: string) => api.delete(`/repos/${username}/${reponame}`),
+  getCommits: (username: string, reponame: string, page = 1, limit = 20) => api.get(`/repos/${username}/${reponame}/commits?page=${page}&limit=${limit}`),
+  push: (username: string, reponame: string, data: { commits: any[]; blobs: any[] }) => api.post(`/repos/${username}/${reponame}/push`, data),
+  pull: (username: string, reponame: string) => api.get(`/repos/${username}/${reponame}/pull`),
+  getStatsMy: () => api.get('/repos/me/stats'),
+};

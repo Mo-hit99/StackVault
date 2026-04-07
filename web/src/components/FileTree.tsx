@@ -19,7 +19,9 @@ export const FileTree = ({ snapshot, username, repo }: FileTreeProps) => {
     );
   }
 
-  const files = Object.keys(snapshot).sort();
+  const files = Object.keys(snapshot)
+    .filter(f => !f.startsWith('.git/') && f !== '.git')
+    .sort();
 
   return (
     <div className="glass-panel overflow-hidden border border-white/10 shadow-2xl">

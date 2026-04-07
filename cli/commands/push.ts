@@ -5,15 +5,15 @@ import { loadBlob, readConfig } from '../core/storage.js';
 import { apiPost } from '../core/api.js';
 import * as logger from '../utils/logger.js';
 
-export const pushCommand = async (remoteName?: string, branch?: string): Promise<void> => {
+export const pushCommand = async (remoteName?: string, branch?: string, pathFilter?: string): Promise<void> => {
   try {
     const cwd = process.cwd();
-    if (!(await fs.pathExists(path.join(cwd, '.stackvault')))) {
+    if (!(await fs.pathExists(path.join(cwd, '.sv')))) {
       throw new Error('Not a StackVault repository');
     }
 
     const stack = new CommitStack();
-    const commits = await stack.traverse(); // Returns commits from HEAD to null
+    const commits = await stack.traverse();
     
     if (commits.length === 0) {
       logger.info('No commits to push');
@@ -21,22 +21,34 @@ export const pushCommand = async (remoteName?: string, branch?: string): Promise
     }
 
     const config = await readConfig();
-    const username = config.username || 'localuser';
-    const repoName = path.basename(cwd);
+    const username = config.username;
+    const repoName = config.repo || path.basename(cwd);
+    const partialPath = pathFilter || config.partialPath;
 
+    if (!username) {
+      throw new Error('Not logged in. Run "sv login" first.');
+    }
+
+    if (!config.remote) {
+      throw new Error('No remote configured. Run "sv remote add origin <url>" first.');
+    }
+
+    logger.info(`Config remote: ${config.remote}`);
     logger.info('Preparing payload...');
     const blobs: any[] = [];
     const blobSet = new Set<string>();
     
-    // Gather all blobs referenced in all commits
     for (const commit of commits) {
       for (const [filepath, hash] of Object.entries(commit.snapshot)) {
+        if (partialPath && !filepath.startsWith(partialPath)) {
+          continue;
+        }
         if (!blobSet.has(hash)) {
           blobSet.add(hash);
           const contentBuffer = await loadBlob(hash);
           blobs.push({
             filepath,
-            content: contentBuffer.toString('utf8'), // convert to string
+            content: contentBuffer.toString('utf8'),
             content_hash: hash,
             commit_id: commit.id
           });
@@ -44,12 +56,32 @@ export const pushCommand = async (remoteName?: string, branch?: string): Promise
       }
     }
 
+    if (partialPath) {
+      logger.info(`Partial push: ${partialPath}`);
+    }
+
     const payload = { commits, blobs };
+    const encodedUsername = encodeURIComponent(username);
+    const encodedRepo = encodeURIComponent(repoName);
+    const fullUrl = `${config.remote}/api/repos/${encodedUsername}/${encodedRepo}/push`;
     
+    logger.info(`Pushing to ${encodedUsername}/${encodedRepo}...`);
     logger.info('Pushing to server...');
-    await apiPost(`/api/repos/${username}/${repoName}/push`, payload);
     
-    logger.success(`Pushed ${commits.length} commits to origin`);
+    const headers = {
+      'Authorization': `Bearer ${config.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    const res = await fetch(fullUrl, {
+      method: 'POST',
+      headers: headers as HeadersInit,
+      body: JSON.stringify(payload)
+    });
+    
+    if (!res.ok) throw new Error(await res.text());
+    
+    logger.success(`Pushed ${commits.length} commits to ${username}/${repoName}`);
   } catch (err: any) {
     logger.error(err.message);
     process.exit(1);

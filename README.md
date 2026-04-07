@@ -1,91 +1,58 @@
 # StackVault
-![NPM Version](https://img.shields.io/npm/v/stackvault.svg)
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-StackVault is a mini version control system inspired by Git. This repo contains three apps that work together:
+StackVault is a modern version control system inspired by Git. Manage your code locally with the CLI, sync to a remote server, and browse repositories through a beautiful web interface.
 
-- `cli`: the local developer tool that creates commits from files in a working directory
-- `server`: the Express + PostgreSQL API that stores users, repositories, commits, and blobs
-- `web`: the React + Vite UI for authentication and repository browsing
+## Features
 
-## Repo Structure
+- **Offline-first CLI** - Work locally without a server, sync when ready
+- **Staging Area** - Stage specific files before committing (like `git add`)
+- **Remote Sync** - Push/pull commits to a central server
+- **Modern Web UI** - Browse repos, view commits, and explore code files
+- **JWT Authentication** - Secure token-based auth for user accounts
+- **File Snapshots** - SHA256 hashes track file changes
+- **.svignore Support** - Exclude files from versioning
 
-```text
-.
-|- cli/        # Local command-line tool
-|- server/     # REST API + migrations
-|- web/        # Frontend app
-|- docs/       # Extra notes and internal docs
-`- docker-compose.yml
+## Architecture
+
+```
+StackVault/
+├── cli/        # Command-line tool
+├── server/     # Express API + PostgreSQL
+├── web/        # React + Vite frontend
+└── docker-compose.yml
 ```
 
-## How The Pieces Work Together
+## Tech Stack
 
-### 1. CLI
+| Component | Technology |
+|-----------|------------|
+| CLI | TypeScript + Commander.js |
+| Server | Express + TypeScript |
+| Database | PostgreSQL |
+| Frontend | React + Vite + Tailwind CSS |
+| Auth | JWT |
 
-The CLI is offline-first for local repository operations such as:
+## Quick Start
 
-- `sv init`
-- `sv status`
-- `sv commit -m "message"`
-- `sv log`
+### Install CLI Globally from npm
 
-When you want to sync local data to a remote backend, the CLI stores a remote URL inside the local `.stackvault` config and calls the API.
+```bash
+npm install -g stackvault
+```
 
-Typical CLI flow:
+### Or Install from Source
 
-1. Initialize a StackVault repository locally.
-2. Create commits from local file snapshots.
-3. Configure a remote API URL with `sv remote add origin <url>`.
-4. Push and pull commit data through the backend.
+```bash
+git clone https://github.com/anomalyco/stackvault.git
+cd stackvault/cli
+npm install
+npm run build
+npm link
+```
 
-### 2. Server
-
-The server exposes API routes under `/api` and uses PostgreSQL for persistence.
-
-Main route groups:
-
-- `/api/auth`
-- `/api/repos`
-- `/api/repos/:username/:repo/push`
-- `/api/repos/:username/:repo/pull`
-- `/api/repos/:username/:repo/commits`
-- `/api/repos/:username/:repo/clone`
-- `/api/repos/:username/:repo/blob`
-
-The server is the bridge between the CLI, the web app, and the database.
-
-### 3. Web
-
-The web app talks to the same backend API used by the CLI.
-
-It uses:
-
-- `VITE_API_URL` for the backend base URL
-- auth endpoints for login and registration
-- repo and commit endpoints for data display
-
-In local development, the normal setup is:
-
-- `web` running on Vite
-- `server` running on port `5000`
-- PostgreSQL running locally or in Docker
-
-## Prerequisites
-
-Install these first:
-
-- Node.js 20+ or newer
-- npm
-- PostgreSQL
-
-Optional:
-
-- Docker Desktop, if you want to run Postgres with Docker instead of a local installation
-
-## Step 1: Install Dependencies
-
-Install dependencies in each app:
+### 1. Install Backend Dependencies
 
 ```bash
 cd server && npm install
@@ -93,285 +60,222 @@ cd ../cli && npm install
 cd ../web && npm install
 ```
 
-## Step 2: Configure Environment Files
+### 2. Configure Environment
 
-### Server env
-
-Create `server/.env` from `server/.env.example`.
-
-Example:
-
+**Server** (`server/.env`):
 ```env
 PORT=5000
 DATABASE_URL=postgresql://postgres:password@localhost:5432/stackvault
-JWT_SECRET=your_jwt_secret_here
+JWT_SECRET=your_secret_here
 JWT_EXPIRES_IN=7d
 ```
 
-Notes:
-
-- `DATABASE_URL` must point to the database your server should use
-- the server reads `server/.env` first
-
-### Web env
-
-Create `web/.env` from `web/.env.example`.
-
-Example:
-
+**Web** (`web/.env`):
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
-## Step 3: Start PostgreSQL
-
-You can use either local Postgres or Docker.
-
-### Option A: Local PostgreSQL
-
-1. Create a database named `stackvault`.
-2. Update `server/.env` with the correct username, password, host, port, and database name.
-
-Example connection string:
-
-```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/stackvault
-```
-
-### Option B: Docker Compose
-
-Start the bundled services from the repo root:
+### 3. Start Services
 
 ```bash
-docker-compose up
+# Start PostgreSQL (Docker)
+docker-compose up -d postgres
+
+# Run migrations
+cd server && npm run migrate
+
+# Start backend
+cd server && npm run dev
+
+# Start frontend (new terminal)
+cd web && npm run dev
+
+# Build and link CLI
+cd cli && npm run build && npm link
 ```
 
-The included compose file starts:
+## CLI Usage
 
-- Postgres
-- the server container
-
-If you use Docker Compose for Postgres, make sure your local `server/.env` matches the database you actually want to use when running the server outside Docker.
-
-## Step 4: Run Database Migrations
-
-The SQL files in `server/migrations` do not run automatically on their own. Run:
-
+### Local Workflow
 ```bash
-cd server
-npm run migrate
-```
-
-This will:
-
-- enable `pgcrypto` if needed
-- create a `schema_migrations` table
-- apply all `.sql` files in `server/migrations`
-
-Expected tables:
-
-- `users`
-- `repos`
-- `commits`
-- `blobs`
-- `schema_migrations`
-
-## Step 5: Start The Server
-
-```bash
-cd server
-npm run dev
-```
-
-Expected startup logs:
-
-```text
-Database connected successfully
-StackVault Server listening on port 5000
-```
-
-If startup fails:
-
-- check `server/.env`
-- make sure Postgres is running
-- make sure the database exists
-- make sure migrations were applied
-- make sure port `5000` is free
-
-## Step 6: Start The Web App
-
-```bash
-cd web
-npm run dev
-```
-
-The frontend will call:
-
-```text
-http://localhost:5000/api
-```
-
-unless you override it in `web/.env`.
-
-## Step 7: Build Or Run The CLI
-
-Build the CLI:
-
-```bash
-cd cli
-npm run build
-```
-
-Run the built CLI:
-
-```bash
-node dist/bin/sv.js --help
-```
-
-Example local workflow:
-
-```bash
-mkdir my-repo
-cd my-repo
+# Initialize repository
+mkdir my-project && cd my-project
 sv init
-sv status
+
+# Stage and commit changes
+sv add .                    # Stage all files
+sv add file.txt             # Stage specific file
+sv add -p src             # Stage only src/ folder
+sv status                 # View staged vs unstaged
 sv commit -m "Initial commit"
-sv log
+sv commit -m "Update" -p src  # Partial commit (only src/)
+sv log                     # View commit history
 ```
 
-## Connecting The CLI To The Server
+### Connect to Server
+```bash
+# Register or login (--url required on first use)
+sv login my@email.com password --url http://localhost:5000
 
-The CLI stores a single remote URL in its local StackVault config.
+# Set remote (base URL of your server ONLY, not the full path)
+sv remote add origin http://localhost:5000
 
-Example:
+# Create remote repository (must match your project name)
+sv create-repo my-project -d "My project description"
+
+# Push commits
+sv push origin main
+sv push origin main -p src   # Partial push (only src/)
+```
+
+**Note:** The remote URL should be the base server URL (e.g., `http://localhost:5000`), not a full path.
+
+### Clone & Sync
+```bash
+# Clone existing repo
+sv clone http://localhost:5000/api/repos/otheruser/their-repo
+sv clone http://localhost:5000/api/repos/otheruser/their-repo --path web
+
+# Pull latest changes
+sv pull origin main
+sv pull origin main -p web  # Partial pull (only web/)
+```
+
+### Partial Sync (Folders/Files)
+
+Work with specific folders:
 
 ```bash
-sv remote add origin http://localhost:5000
+sv add -p api              # Stage only api/ folder
+sv commit -m "API update" -p api    # Commit only api/ changes
+sv push origin main -p api       # Push only api/ files
+sv pull origin main -p web        # Pull only web/ files
+sv clone https://server/repo --path src  # Clone only src/
 ```
 
-Then the CLI can use:
+## CLI Commands
 
-- `sv push`
-- `sv pull`
-- `sv clone <url>`
+| Command | Description |
+|---------|-------------|
+| `sv init` | Initialize a local repository |
+| `sv add [files...]` | Stage file(s) for commit |
+| `sv add -p <path>` | Stage files under path |
+| `sv reset [files...]` | Unstage file(s) |
+| `sv status` | Show working tree status |
+| `sv commit -m "msg"` | Create a commit |
+| `sv commit -m "msg" -p <path>` | Partial commit |
+| `sv log` | Show commit history |
+| `sv register <user> <email> <pass> --url <url>` | Create account |
+| `sv login <email> <pass> --url <url>` | Login to server |
+| `sv create-repo <name> [-d desc] [-p]` | Create repo on server |
+| `sv remote add <name> <url>` | Configure remote server |
+| `sv push [remote] [branch]` | Push commits to remote |
+| `sv push -p <path>` | Partial push |
+| `sv pull [remote] [branch]` | Pull commits from remote |
+| `sv pull -p <path>` | Partial pull |
+| `sv clone <url>` | Clone a repository |
+| `sv clone <url> --path <path>` | Partial clone |
 
-Important:
+## Project Structure
 
-- the remote URL should be the backend server base URL
-- the CLI builds the API route internally using the configured username and local repository name
-- some CLI API calls expect authentication to be present in local config
+Each StackVault project contains a `.sv/` folder that stores:
+- Commits history
+- File blobs (snapshots)
+- Config (remote URL, auth token)
+- Staging area
 
-## Typical Local Development Order
+**Warning:** Deleting `.sv/` folder will lose all local commit history!
 
-When starting fresh, use this order:
+## Ignoring Files
 
-1. Start PostgreSQL.
-2. Create or verify `server/.env`.
-3. Run `cd server && npm run migrate`.
-4. Run `cd server && npm run dev`.
-5. Run `cd web && npm run dev`.
-6. Run `cd cli && npm run build`.
-7. Test CLI and web flows against the running backend.
+Create a `.svignore` file to exclude files from versioning:
 
-## API Summary
+```
+node_modules/
+.env
+dist/
+```
 
-Auth:
+The CLI automatically creates a default `.svignore` when you run `sv init`. The `.sv/` folder is automatically ignored.
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
+## Web Interface
 
-Repos:
+The web app runs at `http://localhost:5173`:
 
-- `POST /api/repos/create`
-- `GET /api/repos/:username`
-- `GET /api/repos/:username/:repo`
+- User registration and login
+- Dashboard with repository listing
+- Create new repositories with modal
+- Repository browser with file tree
+- Commit history viewer
+- Code file viewer
 
-Commits:
+## API Endpoints
 
-- `POST /api/repos/:username/:repo/push`
-- `GET /api/repos/:username/:repo/pull`
-- `GET /api/repos/:username/:repo/commits`
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login and get JWT |
 
-Blobs:
+### Repositories
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/repos/create` | Create new repository |
+| GET | `/api/repos/:username` | List user's repositories |
+| GET | `/api/repos/:username/:repo` | Get repository details |
 
-- `GET /api/repos/:username/:repo/clone`
-- `GET /api/repos/:username/:repo/blob`
+### Commits
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/repos/:username/:repo/push` | Push commits to server |
+| GET | `/api/repos/:username/:repo/pull` | Pull commit history |
+| GET | `/api/repos/:username/:repo/commits` | List commits |
+
+### Blobs
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/repos/:username/:repo/clone` | Clone full repository |
+| GET | `/api/repos/:username/:repo/blob` | Get file content |
+
+## Database Schema
+
+- **users** - User accounts with hashed passwords
+- **repos** - Repository metadata (name, owner, visibility)
+- **commits** - Commit history with parent links
+- **blobs** - File snapshots with content hashes
+- **schema_migrations** - Migration tracking
+
+## Typical Workflow
+
+```
+1. mkdir project && cd project
+2. sv init
+3. sv add . && sv commit -m "Initial commit"
+4. sv login email password --url http://localhost:5000
+5. sv remote add origin http://localhost:5000
+6. sv create-repo my-project
+7. sv push
+8. Open http://localhost:5173 to view your repo
+```
 
 ## Troubleshooting
 
-### Server cannot connect to Postgres
+**Server can't connect to database:**
+- Verify PostgreSQL is running
+- Check `DATABASE_URL` in `server/.env`
+- Ensure database exists
 
-Check:
+**Web can't reach backend:**
+- Verify server is running on port 5000
+- Check `VITE_API_URL` in web `.env`
 
-- Postgres is running
-- `DATABASE_URL` is correct
-- the target database exists
-- the configured port is correct
+**CLI push/pull fails:**
+- Run `sv login` first for authenticated commands
+- Verify `sv remote add` points to correct URL
+- Check server is accessible
 
-### Tables do not exist
-
-Run:
-
+**TypeScript errors on build:**
 ```bash
-cd server
-npm run migrate
-```
-
-### Server says port 5000 is already in use
-
-Either:
-
-- stop the process already using port `5000`
-- or change `PORT` in `server/.env`
-
-### Web cannot reach backend
-
-Check:
-
-- server is running
-- `VITE_API_URL` matches the backend URL
-- browser is calling the expected host and port
-
-### CLI push or pull fails
-
-Check:
-
-- remote is configured
-- server is running
-- the remote URL is correct
-- auth/token data exists if the command requires it
-
-## Useful Commands
-
-### Server
-
-```bash
-npm run dev
+cd cli && npm install
 npm run build
-npm run migrate
 ```
-
-### CLI
-
-```bash
-npm run build
-npm run watch
-npm run start
-```
-
-### Web
-
-```bash
-npm run dev
-npm run build
-npm run preview
-```
-
-## Notes For Developers
-
-- The server uses SQL migration files in `server/migrations`.
-- The migration runner tracks applied files in `schema_migrations`.
-- The web and CLI both depend on the backend API being reachable.
-- If you change route shapes in the server, update both `web` and `cli` integrations.
-
-See `docs/` for deeper internal notes and implementation details.

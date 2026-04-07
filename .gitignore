@@ -24,6 +24,7 @@ frontend/venv/
 .env
 .env.*
 !.env.example
+.sv
 
 # Logs
 *.log

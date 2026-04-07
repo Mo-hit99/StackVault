@@ -6,7 +6,7 @@ import * as logger from '../utils/logger.js';
 export const logCommand = async (): Promise<void> => {
   try {
     const cwd = process.cwd();
-    if (!(await fs.pathExists(path.join(cwd, '.stackvault')))) {
+    if (!(await fs.pathExists(path.join(cwd, '.sv')))) {
       throw new Error('Not a StackVault repository (or any of the parent directories)');
     }
 

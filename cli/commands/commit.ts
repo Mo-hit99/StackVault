@@ -1,18 +1,17 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { CommitStack } from '../core/stack.js';
-import { hashAllFiles, diffSnapshot } from '../core/snapshot.js';
-import { readConfig, saveBlob } from '../core/storage.js';
+import { hashAllFiles, hashFile, diffSnapshot, Snapshot } from '../core/snapshot.js';
+import { readConfig, readIndex, writeIndex, saveBlob, IndexEntry } from '../core/storage.js';
 import { createHash } from '../utils/hash.js';
 import * as logger from '../utils/logger.js';
 
 import { Commit } from '../core/storage.js';
 
-export const commitCommand = async (message: string): Promise<void> => {
+export const commitCommand = async (message: string, pathFilter?: string): Promise<void> => {
   try {
     const cwd = process.cwd();
-    // Check if repo exists
-    if (!(await fs.pathExists(path.join(cwd, '.stackvault')))) {
+    if (!(await fs.pathExists(path.join(cwd, '.sv')))) {
       throw new Error('Not a StackVault repository (or any of the parent directories)');
     }
 
@@ -21,29 +20,51 @@ export const commitCommand = async (message: string): Promise<void> => {
     const oldSnapshot = parentCommit ? parentCommit.snapshot : {};
     
     const config = await readConfig();
-    const partialPath = config.partialPath;
+    const partialPath = pathFilter || config.partialPath;
+    const index = await readIndex();
     
-    let newSnapshot = await hashAllFiles(cwd);
+    let newSnapshot: Snapshot = { ...oldSnapshot };
     
-    // If it's a partial clone, merge the new state with the parent state
-    if (partialPath && parentCommit) {
-        const mergedSnapshot: Record<string, string> = { ...parentCommit.snapshot };
+    const stagedEntries = index.filter(e => e.staged);
+    
+    if (stagedEntries.length === 0) {
+      logger.info('No changes to commit (nothing staged).');
+      logger.info('Use "sv add <files>" to stage changes.');
+      return;
+    }
+
+    const currentSnapshot = await hashAllFiles(cwd);
+    
+    for (const entry of stagedEntries) {
+      const fullPath = path.join(cwd, entry.filepath);
+      
+      if (await fs.pathExists(fullPath)) {
+        const currentHash = await hashFile(fullPath);
+        newSnapshot[entry.filepath] = currentHash;
         
-        // 1. Remove all entries from parent that matched the partialPath (they might be deleted now)
-        for (const key in mergedSnapshot) {
-            if (key.startsWith(partialPath)) {
-                delete mergedSnapshot[key];
-            }
+        if (!oldSnapshot[entry.filepath] || oldSnapshot[entry.filepath] !== currentHash) {
+          const contentBuffer = await fs.readFile(fullPath);
+          await saveBlob(currentHash, contentBuffer);
         }
-        
-        // 2. Add all current files from the partialPath
-        for (const [filepath, hash] of Object.entries(newSnapshot)) {
-            if (filepath.startsWith(partialPath)) {
-                mergedSnapshot[filepath] = hash;
-            }
+      } else {
+        delete newSnapshot[entry.filepath];
+      }
+    }
+
+    if (partialPath) {
+      const mergedSnapshot: Record<string, string> = {};
+      for (const key in oldSnapshot) {
+        if (!key.startsWith(partialPath)) {
+          mergedSnapshot[key] = oldSnapshot[key];
         }
-        
-        newSnapshot = mergedSnapshot;
+      }
+      for (const [filepath, hash] of Object.entries(newSnapshot)) {
+        if (filepath.startsWith(partialPath)) {
+          mergedSnapshot[filepath] = hash;
+        }
+      }
+      newSnapshot = mergedSnapshot;
+      logger.info(`Partial commit: ${partialPath}`);
     }
 
     const { added, modified, deleted } = diffSnapshot(oldSnapshot, newSnapshot);
@@ -53,24 +74,10 @@ export const commitCommand = async (message: string): Promise<void> => {
       return;
     }
 
-    // Save blobs for new/modified files
-    const changedFiles = [...added, ...modified];
-    for (const filepath of changedFiles) {
-      const fullPath = path.join(cwd, filepath);
-      const contentBuffer = await fs.readFile(fullPath);
-      const hash = newSnapshot[filepath];
-      await saveBlob(hash, contentBuffer);
-    }
-
-    // Compute commit properties
     const timestamp = new Date().toISOString();
     const parentId = parentCommit ? parentCommit.id : 'null';
-    
-    // Config values (e.g. author pseudo-mock)
     const author = config.username || 'localuser';
 
-    // Commit hash formula:
-    // SHA256( parent_id + timestamp + message + JSON.stringify(snapshot) )
     const rawCommitString = parentId + timestamp + message + JSON.stringify(newSnapshot);
     const commitId = createHash(rawCommitString);
 
@@ -83,8 +90,10 @@ export const commitCommand = async (message: string): Promise<void> => {
       snapshot: newSnapshot
     };
 
-    // Save to stack
     await stack.push(commit);
+    
+    await writeIndex([]);
+
     logger.success(`Committed: ${commitId.substring(0, 8)} — ${message}`);
   } catch (err: any) {
     logger.error(err.message);

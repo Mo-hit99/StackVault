@@ -12,13 +12,11 @@ export const CommitModel = {
     snapshot: Record<string, string> 
   }): Promise<Commit> {
     const text = 'INSERT INTO commits(id, repo_id, message, parent_id, author_id, timestamp, snapshot) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *';
-    // parentId could be 'null' text in CLI or DB null. Let's convert 'null' string to null DB type.
     const sanitizedParentId = parentId === 'null' ? null : parentId;
     
-    // DB timestamp mapping
     let dt = new Date(timestamp);
     if (isNaN(dt.getTime())) {
-       dt = new Date(); // fallback if invalid
+       dt = new Date();
     }
     
     const values = [id, repoId, message, sanitizedParentId, authorId, dt, JSON.stringify(snapshot)];
@@ -36,6 +34,31 @@ export const CommitModel = {
     `;
     const { rows } = await query(text, [repoId]);
     return rows;
+  },
+
+  async findByRepoIdPaginated(repoId: number, limit: number, offset: number): Promise<Commit[]> {
+    const text = `
+      SELECT c.*, u.username as author 
+      FROM commits c 
+      LEFT JOIN users u ON c.author_id = u.id 
+      WHERE c.repo_id = $1 
+      ORDER BY c.timestamp DESC
+      LIMIT $2 OFFSET $3
+    `;
+    const { rows } = await query(text, [repoId, limit, offset]);
+    return rows;
+  },
+  
+  async countByRepoId(repoId: number): Promise<number> {
+    const text = 'SELECT COUNT(*) as count FROM commits WHERE repo_id = $1';
+    const { rows } = await query(text, [repoId]);
+    return parseInt(rows[0].count);
+  },
+
+  async countByUser(userId: number): Promise<number> {
+    const text = 'SELECT COUNT(*) as count FROM commits WHERE author_id = $1';
+    const { rows } = await query(text, [userId]);
+    return parseInt(rows[0].count);
   },
   
   async findById(id: string): Promise<Commit | undefined> {

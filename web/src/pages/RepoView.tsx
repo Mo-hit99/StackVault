@@ -1,28 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { api } from '../api/client';
+import { reposApi } from '../api/client';
 import { FileTree } from '../components/FileTree';
+import { RepoSettingsModal } from '../components/RepoSettingsModal';
 import { motion } from 'framer-motion';
-import { Book, GitCommit, Settings, Code, Star, GitFork, Eye, Activity } from 'lucide-react';
+import { Book, GitCommit, Settings, Code, Star, GitFork, Eye, Activity, Clock, Upload } from 'lucide-react';
 
 export const RepoView = () => {
   const { username, repo } = useParams<{ username: string; repo: string }>();
   const location = useLocation();
   const [repoData, setRepoData] = useState<any>(null);
+  const [commits, setCommits] = useState<any[]>([]);
   const [snapshot, setSnapshot] = useState<Record<string, string> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     const fetchFullView = async () => {
       try {
-        const repoDetails = await api.get(`/repos/${username}/${repo}`);
+        const repoDetails = await reposApi.get(username || '', repo || '');
         setRepoData(repoDetails);
 
-        if (repoDetails.head && repoDetails.head !== "null") {
-          const commits = await api.get(`/repos/${username}/${repo}/commits`);
-          if (commits.length > 0) {
-            setSnapshot(commits[0].snapshot);
-          }
+        const commitsRes = await reposApi.getCommits(username || '', repo || '', 1, 10);
+        if (commitsRes.commits && commitsRes.commits.length > 0) {
+          setCommits(commitsRes.commits);
+          setSnapshot(commitsRes.commits[0].snapshot);
         }
       } catch (err) {
         console.error(err);
@@ -106,15 +108,68 @@ export const RepoView = () => {
           <GitCommit size={18} />
           <span className="font-bold">Commits</span>
         </Link>
-        <button className="flex items-center space-x-2 px-6 py-2 rounded-xl text-slate-400 hover:text-white transition-all">
+        <button 
+          onClick={() => setShowSettings(true)}
+          className="flex items-center space-x-2 px-6 py-2 rounded-xl text-slate-400 hover:text-white transition-all"
+        >
           <Settings size={18} />
           <span className="font-bold">Settings</span>
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 space-y-6">
           <FileTree snapshot={snapshot || {}} username={username || ''} repo={repo || ''} />
+          
+          {commits.length > 0 && (
+            <div className="glass-panel overflow-hidden border border-white/10">
+              <div className="bg-dark-900/80 backdrop-blur-md px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                <div className="flex items-center text-sm font-black text-white uppercase tracking-widest">
+                  <Upload className="w-5 h-5 mr-3 text-brand-400" />
+                  <span>Recent Pushes</span>
+                </div>
+                <Link 
+                  to={`/${username}/${repo}/commits`}
+                  className="text-xs font-bold text-brand-400 hover:text-brand-300"
+                >
+                  View all
+                </Link>
+              </div>
+              <div className="divide-y divide-white/5">
+                {commits.slice(0, 5).map((commit, index) => (
+                  <motion.div 
+                    key={commit.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="hover:bg-white/[0.03] transition-all"
+                  >
+                    <Link 
+                      to={`/${username}/${repo}/commits?commit=${commit.id}`}
+                      className="flex items-center px-6 py-4"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center mr-4">
+                        <GitCommit className="w-4 h-4 text-brand-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold text-slate-300 truncate">
+                          {commit.message}
+                        </div>
+                        <div className="text-xs text-slate-500 flex items-center space-x-2">
+                          <span>{commit.author}</span>
+                          <span>·</span>
+                          <span>{new Date(commit.timestamp).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="text-xs font-mono text-slate-600">
+                        {commit.id.slice(0, 7)}
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div className="space-y-6">
           <div className="glass-panel p-6">
@@ -124,7 +179,7 @@ export const RepoView = () => {
             </p>
             <div className="flex items-center space-x-2 text-xs text-slate-500 font-bold">
               <Activity size={12} />
-              <span>Last active {new Date().toLocaleDateString()}</span>
+              <span>Last active {new Date(repoData.created_at).toLocaleDateString()}</span>
             </div>
           </div>
           
@@ -153,6 +208,14 @@ export const RepoView = () => {
           </div>
         </div>
       </div>
+
+      <RepoSettingsModal
+        repo={repoData}
+        username={username || ''}
+        reponame={repo || ''}
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </motion.div>
   );
 };

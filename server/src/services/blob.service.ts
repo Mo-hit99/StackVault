@@ -7,14 +7,13 @@ export const BlobService = {
 
     const saved: Blob[] = [];
     for (const b of blobs) {
-      // Depending on scale, this could be optimized, but let's insert simple
       const created = await BlobModel.create({
         commitId: b.commit_id,
         repoId,
-        filepath: b.filepath,
-        content: b.content,
-        contentHash: b.content_hash,
-        size: Buffer.from(b.content).length
+        filepath: b.filepath || '',
+        content: (b.content || '').replace(/\0/g, ''),
+        contentHash: b.content_hash || '',
+        size: Buffer.from((b.content || '').replace(/\0/g, '')).length
       });
       saved.push(created);
     }

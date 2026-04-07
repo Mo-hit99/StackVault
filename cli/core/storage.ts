@@ -1,11 +1,12 @@
 import fs from 'fs-extra';
 import path from 'path';
 
-const SV_DIR = '.stackvault';
+const SV_DIR = '.sv';
 const SV_COMMITS_DIR = path.join(SV_DIR, 'commits');
 const SV_OBJECTS_DIR = path.join(SV_DIR, 'objects');
 const SV_HEAD = path.join(SV_DIR, 'HEAD');
 const SV_CONFIG = path.join(SV_DIR, 'config');
+const SV_INDEX = path.join(SV_DIR, 'index');
 
 export interface Commit {
   id: string;
@@ -20,11 +21,18 @@ export interface Config {
   remote?: string;
   token?: string;
   username?: string;
+  repo?: string;
   partialPath?: string;
   user?: {
     name: string;
     email: string;
   };
+}
+
+export interface IndexEntry {
+  filepath: string;
+  hash: string;
+  staged: boolean;
 }
 
 /**
@@ -40,6 +48,7 @@ export const initRepo = async (): Promise<void> => {
   
   await writeHead('null');
   await writeConfig({});
+  await writeIndex([]);
 };
 
 /**
@@ -111,4 +120,27 @@ export const loadBlob = async (hash: string): Promise<Buffer> => {
     throw new Error(`Blob ${hash} not found locally.`);
   }
   return await fs.readFile(blobPath);
+};
+
+/**
+ * Read the index (staging area)
+ */
+export const readIndex = async (): Promise<IndexEntry[]> => {
+  if (!(await fs.pathExists(SV_INDEX))) return [];
+  const data = await fs.readFile(SV_INDEX, 'utf8');
+  return JSON.parse(data);
+};
+
+/**
+ * Write the index (staging area)
+ */
+export const writeIndex = async (entries: IndexEntry[]): Promise<void> => {
+  await fs.writeFile(SV_INDEX, JSON.stringify(entries, null, 2), 'utf8');
+};
+
+/**
+ * Clear the index
+ */
+export const clearIndex = async (): Promise<void> => {
+  await fs.remove(SV_INDEX);
 };

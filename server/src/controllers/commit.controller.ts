@@ -56,14 +56,17 @@ export const CommitController = {
   async getCommits(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { username, repo: repoName } = req.params;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      
       const user = await UserModel.findByUsername(username as string);
       if (!user) return res.status(404).json({ message: 'User not found' });
 
       const repo = await RepoModel.findByNameAndOwner(repoName as string, user.id);
       if (!repo) return res.status(404).json({ message: 'Repo not found' });
 
-      const commits = await StackService.getCommitStack(repo.id);
-      return res.status(200).json(commits);
+      const result = await StackService.getCommitStackPaginated(repo.id, page, limit);
+      return res.status(200).json(result);
     } catch (err) {
       next(err);
     }
