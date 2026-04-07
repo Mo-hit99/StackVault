@@ -7,7 +7,7 @@ import * as logger from '../utils/logger.js';
 export const pullCommand = async (remoteName?: string, branch?: string, pathFilter?: string): Promise<void> => {
   try {
     const cwd = process.cwd();
-    if (!(await fs.pathExists(path.join(cwd, '.sv')))) {
+    if (!(await fs.pathExists(path.join(cwd, '.gexra')))) {
       throw new Error('Not a Gexra repository');
     }
 
@@ -35,7 +35,7 @@ export const pullCommand = async (remoteName?: string, branch?: string, pathFilt
             continue;
           }
 
-          const blobPath = path.join(cwd, '.sv', 'objects', `${hash}.blob`);
+          const blobPath = path.join(cwd, '.gexra', 'objects', `${hash}.blob`);
           if (await fs.pathExists(blobPath)) {
             const buf = await fs.readFile(blobPath);
             await fs.outputFile(path.join(cwd, filepath), buf);

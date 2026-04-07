@@ -28,7 +28,7 @@ const getBaseUrl = async (): Promise<string> => {
 };
 
 const saveAuth = async (cwd: string, username: string, token: string, remoteUrl?: string) => {
-  const configPath = path.join(cwd, '.sv', 'config');
+  const configPath = path.join(cwd, '.gexra', 'config');
   let config: any = {};
   
   if (await fs.pathExists(configPath)) {
@@ -41,7 +41,7 @@ const saveAuth = async (cwd: string, username: string, token: string, remoteUrl?
     config.remote = remoteUrl;
   }
   
-  await fs.ensureDir(path.join(cwd, '.sv'));
+  await fs.ensureDir(path.join(cwd, '.gexra'));
   await fs.writeFile(configPath, JSON.stringify(config, null, 2));
 };
 

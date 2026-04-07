@@ -8,7 +8,7 @@ import * as logger from '../utils/logger.js';
 export const pushCommand = async (remoteName?: string, branch?: string, pathFilter?: string): Promise<void> => {
   try {
     const cwd = process.cwd();
-    if (!(await fs.pathExists(path.join(cwd, '.sv')))) {
+    if (!(await fs.pathExists(path.join(cwd, '.gexra')))) {
       throw new Error('Not a Gexra repository');
     }
 
