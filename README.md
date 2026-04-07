@@ -1,8 +1,8 @@
-# Gexra
+# StackVault
 
-![License](https://img.shields.io/badge/license-MIT-blue.gexrag)
+![License](https://img.shields.io/badge/license-MIT-blue.StackVault)
 
-Gexra is a modern version control system. Manage your code locally with the CLI, sync to a remote server, and browse repositories through a beautiful web interface.
+StackVault is a modern version control system. Manage your code locally with the CLI, sync to a remote server, and browse repositories through a beautiful web interface.
 
 ## Features
 
@@ -17,7 +17,7 @@ Gexra is a modern version control system. Manage your code locally with the CLI,
 ## Architecture
 
 ```
-gexra/
+StackVault/
 ├── cli/        # Command-line tool (gexra)
 ├── server/     # Express API + PostgreSQL
 ├── web/        # React + Vite frontend
@@ -45,8 +45,8 @@ npm install -g gexra
 ### Or Install from Source
 
 ```bash
-git clone https://github.com/anomalyco/gexra.git
-cd gexra/cli
+git clone https://github.com/Mo-hit99/StackVault.git
+cd StackVault/cli
 npm install
 npm run build
 npm link
