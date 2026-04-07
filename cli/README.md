@@ -1,6 +1,6 @@
 # Gexra CLI
 
-A modern version control system with CLI and web interface. Built for the cloud.
+A modern version control system with CLI. Built for the cloud.
 
 ## Main Features
 
