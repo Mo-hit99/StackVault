@@ -3,19 +3,19 @@ import { readConfig, writeConfig } from './storage.js';
 
 export const getBaseUrl = async (): Promise<string> => {
   const config = await readConfig();
-  if (!config.remote) throw new Error("No remote configured. Run 'sv remote add origin <url>'");
+  if (!config.remote) throw new Error("No remote configured. Run 'gexra remote add origin <url>'");
   return config.remote;
 };
 
 export const getToken = async (): Promise<string> => {
   const config = await readConfig();
-  if (!config.token) throw new Error("Not authenticated. Please run 'sv login' first.");
+  if (!config.token) throw new Error("Not authenticated. Please run 'gexra login' first.");
   return config.token;
 };
 
 export const getUsername = async (): Promise<string> => {
   const config = await readConfig();
-  if (!config.username) throw new Error("Not authenticated. Please run 'sv login' first.");
+  if (!config.username) throw new Error("Not authenticated. Please run 'gexra login' first.");
   return config.username;
 };
 

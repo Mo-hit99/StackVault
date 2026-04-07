@@ -23,7 +23,7 @@ const authPost = async (baseUrl: string, authPath: string, body: any): Promise<a
 
 const getBaseUrl = async (): Promise<string> => {
   const config = await readConfig();
-  if (!config.remote) throw new Error("No remote configured. Run 'sv remote add origin <url>'");
+  if (!config.remote) throw new Error("No remote configured. Run 'gexra remote add origin <url>'");
   return config.remote;
 };
 
@@ -112,11 +112,11 @@ export const createRepoCommand = async (name: string, description?: string, isPr
     
     // Save repo name to config for push/pull
     config.repo = response.name;
-    await fs.writeFile(path.join(cwd, '.sv', 'config'), JSON.stringify(config, null, 2));
+    await fs.writeFile(path.join(cwd, '.gexra', 'config'), JSON.stringify(config, null, 2));
     
     logger.success(`Repository '${response.name}' created successfully!`);
     logger.info(`Remote URL: ${baseUrl}`);
-    logger.info(`Run 'sv push' to push your commits`);
+    logger.info(`Run 'gexra push' to push your commits`);
   } catch (err: any) {
     logger.error(err.message);
     process.exit(1);

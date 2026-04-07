@@ -85,7 +85,7 @@ program
     if (action === 'add') {
       remoteCommand(name, url);
     } else {
-      console.log('Unknown action. Use: sv remote add <name> <url>');
+      console.log('Unknown action. Use: gexra remote add <name> <url>');
     }
   });
 

@@ -26,11 +26,11 @@ export const pushCommand = async (remoteName?: string, branch?: string, pathFilt
     const partialPath = pathFilter || config.partialPath;
 
     if (!username) {
-      throw new Error('Not logged in. Run "sv login" first.');
+      throw new Error('Not logged in. Run "gexra login" first.');
     }
 
     if (!config.remote) {
-      throw new Error('No remote configured. Run "sv remote add origin <url>" first.');
+      throw new Error('No remote configured. Run "gexra remote add origin <url>" first.');
     }
 
     logger.info(`Config remote: ${config.remote}`);

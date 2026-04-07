@@ -29,7 +29,7 @@ export const commitCommand = async (message: string, pathFilter?: string): Promi
     
     if (stagedEntries.length === 0) {
       logger.info('No changes to commit (nothing staged).');
-      logger.info('Use "sv add <files>" to stage changes.');
+      logger.info('Use "gexra add <files>" to stage changes.');
       return;
     }
 
