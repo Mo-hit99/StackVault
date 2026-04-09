@@ -23,11 +23,11 @@ const installOptions = [
 ];
 
 const quickStart = [
-  'gexra register <username> <email> <password> --url http://localhost:5000',
-  'gexra login <email> <password> --url http://localhost:5000',
+  'gexra register <username> <email> <password> --url https://stack-vault-three.vercel.app',
+  'gexra login <email> <password> --url https://stack-vault-three.vercel.app',
   'gexra init',
   'gexra create-repo <name> -d "My first repo"',
-  'gexra remote add origin http://localhost:5000',
+  'gexra remote add origin https://stack-vault-three.vercel.app',
   'gexra add .',
   'gexra commit -m "Initial commit"',
   'gexra push origin main',
@@ -182,7 +182,7 @@ export const Docs = () => {
           <div className="card">
             <h2 className="text-[22px] font-bold text-[var(--text-primary)]">Helpful Notes</h2>
             <div className="mt-5 space-y-4 text-[14px] text-[var(--text-secondary)]">
-              <p>Use the server base URL only when adding a remote, for example `http://localhost:5000` and not `/api`.</p>
+              <p>Use the server base URL only when adding a remote, for example `https://stack-vault-three.vercel.app` and not `/api`.</p>
               <p>Path-scoped commands are great for monorepos. You can work only on `web`, `api`, or `src/components` without syncing the entire tree.</p>
               <p>Run `gexra status` before committing when you want a clear view of staged versus unstaged changes.</p>
               <p>Use `gexra --help` or any command with `--help` when you need option details while working in the terminal.</p>

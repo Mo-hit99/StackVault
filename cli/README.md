@@ -41,15 +41,15 @@ gexra pull origin main -p src    # Partial pull (only src/)
 Clone with partial path:
 
 ```bash
-gexra clone https://your-server.com/api/repos/user/repo
-gexra clone https://your-server.com/api/repos/user/repo --path src
+gexra clone https://stack-vault-three.vercel.app/api/repos/user/repo
+gexra clone https://stack-vault-three.vercel.app/api/repos/user/repo --path src
 ```
 
 ### 🔹 Full Examples
 
 ```bash
 # Clone only frontend
-gexra clone https://server.com/api/repos/user/repo --path web
+gexra clone https://stack-vault-three.vercel.app/api/repos/user/repo --path web
 
 # Work on API only  
 gexra add -p api
@@ -65,7 +65,7 @@ gexra pull origin main -p web
 Connect to your server:
 
 ```bash
-gexra remote add origin https://your-server.com
+gexra remote add origin https://stack-vault-three.vercel.app
 ```
 
 ### 🔹 Authentication
@@ -73,8 +73,8 @@ gexra remote add origin https://your-server.com
 Login to access private repositories:
 
 ```bash
-gexra register username email password --url https://your-server.com
-gexra login email password --url https://your-server.com
+gexra register username email password --url https://stack-vault-three.vercel.app
+gexra login email password --url https://stack-vault-three.vercel.app
 ```
 
 ## Installation
@@ -135,8 +135,8 @@ gexra add .
 gexra commit -m "Initial commit"
 
 # 4. Connect to server
-gexra remote add origin https://your-server.com
-gexra login your@email.com password --url https://your-server.com
+gexra remote add origin https://stack-vault-three.vercel.app
+gexra login your@email.com password --url https://stack-vault-three.vercel.app
 
 # 5. Push
 gexra push origin main
@@ -172,16 +172,16 @@ gexra clone --path src --help   # Partial clone
 When deploying to Vercel:
 
 ```bash
-gexra remote add origin https://your-app.vercel.app
-```
-
-For local development:
-
-```bash
-gexra remote add origin http://localhost:5000
+gexra remote add origin https://stack-vault-three.vercel.app
 ```
 
 **Note:** Use the base URL only (no `/api` path).
+
+## Frontend Playground
+
+You can view your code in the hosted frontend playground here:
+
+`https://stack-vault-ta7m.vercel.app/`
 
 ## Development
 

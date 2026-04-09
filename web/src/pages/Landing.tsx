@@ -38,8 +38,9 @@ export const Landing = () => {
           {'Version control,\nmodular by design.'}
         </h1>
 
-        <p className="mt-5 max-w-[480px] text-[16px] text-[var(--text-secondary)] sm:text-[18px]">
-          Push, pull, commit, and clone - any folder, any file. Built for developers who think in layers.
+        <p className="mt-5 max-w-[560px] text-[16px] text-[var(--text-secondary)] sm:text-[18px]">
+          I made this mainly for learning and for people who want to see how version control can work behind the scenes. You can push,
+          pull, commit, and clone any folder or file while getting a feel for what&apos;s really going on under the hood.
         </p>
 
         <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
@@ -50,7 +51,7 @@ export const Landing = () => {
             <Terminal size={18} />
             Read Docs
           </Link>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="btn btn-secondary btn-lg">
+          <a href="https://github.com/Mo-hit99/StackVault" target="_blank" rel="noreferrer" className="btn btn-secondary btn-lg">
             <GitBranch size={18} />
             View on GitHub
           </a>

@@ -18,7 +18,7 @@ const program = new Command();
 program
   .name('gexra')
   .description('Gexra: A modern version control system with CLI and web interface')
-  .version('1.0.5');
+  .version('1.0.6');
 
 program
   .command('init')
