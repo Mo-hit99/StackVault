@@ -1,7 +1,21 @@
 {
   "name": "gexra",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Gexra - A modern version control system with CLI and web interface",
+  "keywords": [
+    "gexra",
+    "stackvault",
+    "stack-vault",
+    "vcs",
+    "version-control",
+    "source-control",
+    "git",
+    "git-like",
+    "cli",
+    "developer-tools",
+    "repository",
+    "cloud-version-control"
+  ],
   "type": "module",
   "bin": {
     "gexra": "dist/bin/gexra.js"
