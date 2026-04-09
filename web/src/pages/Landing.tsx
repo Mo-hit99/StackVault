@@ -1,96 +1,88 @@
+import { GitBranch, GitCommit, FolderOpen, Terminal } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Zap, Shield, Cpu, Globe, ArrowRight, Terminal } from 'lucide-react';
 
-const FeatureCard = ({ icon: Icon, title, description }: { icon: any, title: string, description: string }) => (
-  <motion.div 
-    whileHover={{ y: -5, scale: 1.02 }}
-    className="glass-card flex flex-col items-start"
-  >
-    <div className="w-12 h-12 brand-gradient rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-brand-500/20">
-      <Icon className="text-white w-6 h-6" />
-    </div>
-    <h3 className="text-xl font-bold mb-3 text-white">{title}</h3>
-    <p className="text-slate-400 leading-relaxed">{description}</p>
-  </motion.div>
-);
+const features = [
+  {
+    icon: GitCommit,
+    title: 'Stack-based commits',
+    body: 'Every commit is a node in a stack - push, pop, traverse.',
+  },
+  {
+    icon: FolderOpen,
+    title: 'Partial clone by path',
+    body: 'Clone only src/components - save bandwidth, work modularly.',
+  },
+  {
+    icon: Terminal,
+    title: 'CLI + Web in sync',
+    body: 'sv push from your terminal, browse on the web instantly.',
+  },
+];
 
 export const Landing = () => {
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="relative flex flex-col items-center pt-20 pb-32 px-4"
-    >
-      {/* Decorative background elements */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-[-1]">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-500/10 blur-[150px] rounded-full animate-float" />
-        <div className="absolute top-40 right-1/4 w-96 h-96 bg-indigo-600/10 blur-[150px] rounded-full animate-float" style={{ animationDelay: '-3s' }} />
-      </div>
+    <div className="relative overflow-hidden px-4 pb-20 pt-8 sm:px-6">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-[520px] max-w-[1200px]"
+        style={{
+          background: 'radial-gradient(ellipse 800px 500px at 50% 0%, var(--accent-glow), transparent)',
+        }}
+      />
 
-      <div className="text-center max-w-4xl mx-auto mb-20 px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-brand-400 text-sm font-bold mb-8"
-        >
-          <Zap size={16} />
-          <span>v1.0.0 is now live</span>
-        </motion.div>
+      <section className="relative mx-auto flex min-h-[80vh] max-w-[1100px] flex-col items-center justify-center py-16 text-center">
+        <div className="badge badge-orange px-3 py-1 text-[12px] uppercase tracking-[0.08em]">
+          Open Source / Version Control / Modular
+        </div>
 
-        <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-8 leading-[1.1]">
-          Version Control, <br />
-          <span className="text-gradient">Reimagined.</span>
+        <h1 className="font-display mt-5 whitespace-pre-line text-[36px] leading-[1.15] text-[var(--text-primary)] sm:text-[46px] lg:text-[56px]">
+          {'Version control,\nmodular by design.'}
         </h1>
 
-        <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-          StackVault is a high-performance, minimalist alternative to Git. Built for velocity, clarity, and modern development workflows.
+        <p className="mt-5 max-w-[480px] text-[16px] text-[var(--text-secondary)] sm:text-[18px]">
+          Push, pull, commit, and clone - any folder, any file. Built for developers who think in layers.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <Link to="/register">
-            <motion.button 
-              whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(139, 92, 246, 0.4)" }}
-              whileTap={{ scale: 0.95 }}
-              className="brand-gradient text-white px-10 py-4 rounded-2xl font-black text-lg shadow-2xl flex items-center space-x-2"
-            >
-              <span>Get Started Free</span>
-              <ArrowRight size={20} />
-            </motion.button>
+        <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
+          <Link to="/register" className="btn btn-primary btn-lg">
+            Get Started
           </Link>
-          
-          <a href="https://github.com" target="_blank" rel="noreferrer">
-            <motion.button 
-              whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.08)" }}
-              whileTap={{ scale: 0.95 }}
-              className="glass-panel px-10 py-4 rounded-2xl border border-white/10 font-bold text-lg text-white flex items-center space-x-3"
-            >
-              <Terminal size={20} />
-              <span>Explore Source</span>
-            </motion.button>
+          <Link to="/docs" className="btn btn-secondary btn-lg">
+            <Terminal size={18} />
+            Read Docs
+          </Link>
+          <a href="https://github.com" target="_blank" rel="noreferrer" className="btn btn-secondary btn-lg">
+            <GitBranch size={18} />
+            View on GitHub
           </a>
         </div>
-      </div>
+      </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto px-4 w-full">
-        <FeatureCard 
-          icon={Cpu}
-          title="Lightweight Performance"
-          description="Optimized for speed. Minimal overhead, zero bloat. Just pure versioning logic."
-        />
-        <FeatureCard 
-          icon={Shield}
-          title="Enterprise Security"
-          description="End-to-end snapshots with cryptographic integrity. Your code is vaulted safely."
-        />
-        <FeatureCard 
-          icon={Globe}
-          title="Cloud Native"
-          description="Designed to scale with your team. Seamless sync between CLI and Web Dashboard."
-        />
-      </div>
-    </motion.div>
+      <section className="mx-auto mt-4 grid max-w-[900px] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {features.map((feature) => (
+          <div key={feature.title} className="card card-hover">
+            <feature.icon size={28} className="mb-4 text-[var(--accent)]" />
+            <h2 className="mb-2 text-[16px] font-bold text-[var(--text-primary)]">{feature.title}</h2>
+            <p className="text-[14px] text-[var(--text-muted)]">{feature.body}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="terminal-shell mx-auto mt-20 max-w-[640px] rounded-[var(--radius-xl)] px-5 py-5" style={{ boxShadow: 'var(--shadow-lg)' }}>
+        <div className="mb-4 flex gap-2">
+          <span className="terminal-dot-red h-[10px] w-[10px] rounded-full" />
+          <span className="terminal-dot-yellow h-[10px] w-[10px] rounded-full" />
+          <span className="terminal-dot-green h-[10px] w-[10px] rounded-full" />
+        </div>
+
+        <div className="space-y-2 font-mono text-[13px] leading-[1.7]">
+          {['sv init', 'sv add .', 'sv commit -m "first commit"', 'sv push origin main'].map((command) => (
+            <div key={command}>
+              <span style={{ color: 'var(--accent)' }}>$ </span>
+              <span className="terminal-text">{command}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 };

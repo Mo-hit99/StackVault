@@ -65,7 +65,7 @@ cd ../web && npm install
 **Server** (`server/.env`):
 ```env
 PORT=5000
-DATABASE_URL=postgresql://postgres:password@localhost:5432/gexra
+DATABASE_URL=postgresql://username:password@db.prisma.io:5432/postgres?sslmode=require
 JWT_SECRET=your_secret_here
 JWT_EXPIRES_IN=7d
 ```
@@ -78,9 +78,6 @@ VITE_API_URL=http://localhost:5000/api
 ### 3. Start Services
 
 ```bash
-# Start PostgreSQL (Docker)
-docker-compose up -d postgres
-
 # Run migrations
 cd server && npm run migrate
 
@@ -278,4 +275,11 @@ The web app runs at `http://localhost:5173`:
 ```bash
 cd cli && npm install
 npm run build
+```
+If you're using a hosted database like Prisma Postgres, you can skip the local Docker Postgres step entirely. The server reads `DATABASE_URL` from `server/.env` and now enables SSL automatically for `sslmode=require` / `*.prisma.io` connections.
+
+If you want a local database instead, you can still start one with:
+
+```bash
+docker-compose up -d postgres
 ```

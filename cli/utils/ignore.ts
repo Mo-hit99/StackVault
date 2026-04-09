@@ -1,6 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
 
+const PROTECTED_DIRECTORIES = ['.gexra', '.git'];
+
 /**
  * Parses a .gexraignore file and returns a list of ignore rules.
  */
@@ -15,12 +17,20 @@ export const parseIgnore = async (rootDir: string): Promise<string[]> => {
     .filter(line => line && !line.startsWith('#'));
 };
 
+export const isProtectedPath = (filepath: string): boolean => {
+  const normalizedPath = filepath.split(path.sep).join('/');
+  return PROTECTED_DIRECTORIES.some(
+    protectedDir =>
+      normalizedPath === protectedDir || normalizedPath.startsWith(`${protectedDir}/`)
+  );
+};
+
 /**
  * Checks whether a given relative filepath should be ignored based on a list of ignore rules.
  */
 export const isIgnored = (filepath: string, ignoreRules: string[]): boolean => {
-  // Always ignore .gexra directory itself
-  if (filepath === '.gexra' || filepath.startsWith('.gexra/')) {
+  // Always ignore internal VCS directories
+  if (isProtectedPath(filepath)) {
     return true;
   }
 

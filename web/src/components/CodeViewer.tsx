@@ -1,54 +1,72 @@
-import { Code as CodeIcon, Terminal, Copy } from 'lucide-react';
+import { CheckCheck, ChevronRight, Clipboard, Code } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
-export const CodeViewer = ({ content, filename }: { content: string; filename: string }) => {
-  const lines = content.split('\n');
+interface CodeViewerProps {
+  content?: string;
+  filename?: string;
+}
+
+export const CodeViewer = ({ content = '', filename = '' }: CodeViewerProps) => {
+  const [copied, setCopied] = useState(false);
+  const lines = useMemo(() => content.split('\n'), [content]);
+  const pathParts = filename.split('/').filter(Boolean);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(content);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!filename) {
+    return (
+      <div className="flex min-h-[320px] items-center justify-center px-6 py-16 text-center text-[15px] text-[var(--text-muted)]">
+        Select a file to view its contents
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="bg-white/[0.02] border-b border-white/5 px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center">
-            <CodeIcon size={16} className="text-brand-400" />
-          </div>
-          <span className="text-sm font-bold text-slate-300">{filename}</span>
+    <div className="flex h-full flex-col bg-[var(--bg-surface)]">
+      <div className="flex flex-col gap-3 border-b border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-1 text-[13px]">
+          {pathParts.map((part, index) => (
+            <div key={`${part}-${index}`} className="flex items-center gap-1">
+              <span className={index === pathParts.length - 1 ? 'font-medium text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}>
+                {part}
+              </span>
+              {index < pathParts.length - 1 && <ChevronRight size={13} className="text-[var(--text-muted)]" />}
+            </div>
+          ))}
         </div>
-        <div className="flex items-center space-x-4">
-          <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded">
-            {lines.length} Lines
-          </div>
-          <button className="text-slate-500 hover:text-white transition-colors">
-            <Copy size={16} />
+
+        <div className="flex items-center gap-2">
+          <button type="button" className="btn btn-ghost btn-sm" onClick={handleCopy}>
+            {copied ? <CheckCheck size={14} /> : <Clipboard size={14} />}
+            {copied ? 'Copied!' : 'Copy'}
+          </button>
+          <button type="button" className="btn btn-ghost btn-sm">
+            <Code size={14} />
+            Raw
           </button>
         </div>
       </div>
-      
-      <div className="relative font-mono text-sm overflow-x-auto bg-dark-950/40">
-        <div className="flex min-w-full">
-          {/* Line Numbers */}
-          <div className="flex-none w-14 py-4 text-right pr-4 text-slate-700 select-none bg-white/[0.01] border-r border-white/5">
-            {lines.map((_, i) => (
-              <div key={i + 1}>{i + 1}</div>
-            ))}
-          </div>
-          
-          {/* Code Content */}
-          <pre className="flex-1 py-4 px-6 text-slate-300 leading-relaxed">
-            <code>
-              {content || <span className="italic text-slate-600">// No content</span>}
-            </code>
-          </pre>
-        </div>
-      </div>
 
-      <div className="bg-white/[0.02] border-t border-white/5 px-6 py-2 flex items-center justify-end">
-        <div className="flex items-center space-x-2 text-[10px] font-bold text-slate-600 uppercase tracking-tighter">
-          <Terminal size={10} />
-          <span>UTF-8</span>
-          <span className="w-1 h-1 rounded-full bg-slate-700" />
-          <span>LF</span>
-        </div>
+      <div className="max-h-[calc(100vh-200px)] overflow-auto bg-[var(--bg-surface)]">
+        <table className="w-full border-collapse">
+          <tbody>
+            {lines.map((line, index) => (
+              <tr key={index} className="hover:bg-[var(--bg-elevated)]">
+                <td className="w-12 min-w-[48px] select-none border-r border-[var(--border)] px-4 pb-0 pt-[2px] text-right align-top font-mono text-[12px] text-[var(--text-muted)]">
+                  {index + 1}
+                </td>
+                <td className="overflow-x-auto px-4 py-0 font-mono text-[13px] leading-[1.7] text-[var(--text-primary)] whitespace-pre">
+                  {line || ' '}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
-

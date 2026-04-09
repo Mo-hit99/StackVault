@@ -38,6 +38,7 @@ export const CommitController = {
   async pull(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { username, repo: repoName } = req.params;
+      const pathFilter = req.query.path as string | undefined;
       const user = await UserModel.findByUsername(username as string);
       if (!user) return res.status(404).json({ message: 'User not found' });
 
@@ -46,8 +47,11 @@ export const CommitController = {
 
       const commits = await StackService.getCommitStack(repo.id);
       const headId = commits.length > 0 ? commits[0].id : "null";
+      const blobs = headId === "null"
+        ? []
+        : await BlobService.getBlobsByCommit(headId, pathFilter);
 
-      return res.status(200).json({ commits, head: headId });
+      return res.status(200).json({ commits, blobs, head: headId });
     } catch (err) {
       next(err);
     }

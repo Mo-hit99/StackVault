@@ -6,8 +6,17 @@ if (!DATABASE_URL) {
   throw new Error('DATABASE_URL is not set. Add it to server/.env or the repo root .env file.');
 }
 
+const databaseUrl = new URL(DATABASE_URL);
+const sslMode = databaseUrl.searchParams.get('sslmode');
+const useSsl = sslMode === 'require' || databaseUrl.hostname.endsWith('prisma.io');
+
 export const pool = new Pool({
   connectionString: DATABASE_URL,
+  ssl: useSsl
+    ? {
+        rejectUnauthorized: false,
+      }
+    : undefined,
 });
 
 pool.on('error', (err) => {

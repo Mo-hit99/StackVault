@@ -1,33 +1,68 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Navbar } from './components/Navbar';
-import { Landing } from './pages/Landing';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { Dashboard } from './pages/Dashboard';
-import { RepoView } from './pages/RepoView';
-import { CommitLog } from './pages/CommitLog';
-import { FileView } from './pages/FileView';
-import { useAuthStore } from './store/authStore';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { Navbar } from './components/Navbar';
+import { useAuthStore } from './store/authStore';
 
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const user = useAuthStore(s => s.user);
-  return user ? <>{children}</> : <Navigate to="/login" />;
+const Landing = lazy(() => import('./pages/Landing').then((module) => ({ default: module.Landing })));
+const Docs = lazy(() => import('./pages/Docs').then((module) => ({ default: module.Docs })));
+const Login = lazy(() => import('./pages/Login').then((module) => ({ default: module.Login })));
+const Register = lazy(() => import('./pages/Register').then((module) => ({ default: module.Register })));
+const Dashboard = lazy(() => import('./pages/Dashboard').then((module) => ({ default: module.Dashboard })));
+const RepoView = lazy(() => import('./pages/RepoView').then((module) => ({ default: module.RepoView })));
+const CommitLog = lazy(() => import('./pages/CommitLog').then((module) => ({ default: module.CommitLog })));
+const FileView = lazy(() => import('./pages/FileView').then((module) => ({ default: module.FileView })));
+
+const RouteLoadingFallback = () => (
+  <div className="flex min-h-[calc(100vh-56px)] items-center justify-center px-4 py-10">
+    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--bg-surface)] px-5 py-4 text-[14px] text-[var(--text-muted)] shadow-[var(--shadow-sm)]">
+      Loading page...
+    </div>
+  </div>
+);
+
+const ProtectedRoute = () => {
+  const location = useLocation();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated && Boolean(s.user) && Boolean(s.token));
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  return <Outlet />;
+};
+
+const PublicOnlyRoute = () => {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated && Boolean(s.user) && Boolean(s.token));
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Outlet />;
 };
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/:username/:repo" element={<RepoView />} />
-        <Route path="/:username/:repo/commits" element={<CommitLog />} />
-        <Route path="/:username/:repo/blob" element={<FileView />} />
-      </Routes>
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Landing />} />
+          <Route path="/docs" element={<Docs />} />
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
+          <Route path="/:username/:repo" element={<RepoView />} />
+          <Route path="/:username/:repo/commits" element={<CommitLog />} />
+          <Route path="/:username/:repo/blob" element={<FileView />} />
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   );
 };
@@ -35,17 +70,11 @@ const AnimatedRoutes = () => {
 function App() {
   return (
     <Router>
-      <div className="min-h-screen flex flex-col pt-24">
+      <div className="min-h-screen bg-[var(--bg-base)] pt-14">
         <Navbar />
-        <main className="flex-1">
+        <main className="min-h-[calc(100vh-56px)]">
           <AnimatedRoutes />
         </main>
-        
-        {/* Global Mesh Gradient Overlays */}
-        <div className="fixed inset-0 pointer-events-none z-[-1] opacity-50">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-500/20 blur-[120px] rounded-full" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full" />
-        </div>
       </div>
     </Router>
   );

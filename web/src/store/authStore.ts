@@ -9,6 +9,7 @@ export interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  isAuthenticated: boolean;
   login: (userData: User, tokenData: string) => void;
   logout: () => void;
 }
@@ -17,16 +18,17 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: JSON.parse(localStorage.getItem('sv_user') || 'null'),
   token: localStorage.getItem('sv_token') || null,
+  isAuthenticated: Boolean(localStorage.getItem('sv_user') && localStorage.getItem('sv_token')),
 
   login: (userData, tokenData) => {
     localStorage.setItem('sv_user', JSON.stringify(userData));
     localStorage.setItem('sv_token', tokenData);
-    set({ user: userData, token: tokenData });
+    set({ user: userData, token: tokenData, isAuthenticated: true });
   },
 
   logout: () => {
     localStorage.removeItem('sv_user');
     localStorage.removeItem('sv_token');
-    set({ user: null, token: null });
+    set({ user: null, token: null, isAuthenticated: false });
   }
 }));

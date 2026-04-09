@@ -1,77 +1,88 @@
+import { Menu, Search } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { LayoutDashboard, LogOut, Terminal, User, Boxes } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ThemeToggle } from './ThemeToggle';
 
 export const Navbar = () => {
   const { user, logout } = useAuthStore();
   const location = useLocation();
+  const isLoggedIn = Boolean(user);
+
+  const navItems = isLoggedIn
+    ? [
+        { label: 'Repos', to: '/dashboard', active: location.pathname === '/dashboard' },
+        { label: 'Docs', to: '/docs', active: location.pathname === '/docs' },
+      ]
+    : [{ label: 'Docs', to: '/docs', active: location.pathname === '/docs' }];
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-3rem)] max-w-6xl">
-      <div className="glass-panel px-6 py-3 flex items-center justify-between shadow-2xl shadow-brand-500/10 backdrop-blur-2xl">
-        <Link to="/" className="flex items-center space-x-2 group">
-          <div className="w-10 h-10 brand-gradient rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30 group-hover:scale-110 transition-transform duration-300">
-            <Boxes className="text-white w-6 h-6" />
-          </div>
-          <span className="text-2xl font-extrabold tracking-tighter text-white mr-8">
-            Stack<span className="text-brand-400">Vault</span>
-          </span>
-        </Link>
-        
-        <div className="flex items-center space-x-2">
-          {user ? (
-            <>
-              <Link 
-                to="/dashboard" 
-                className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${location.pathname === '/dashboard' ? 'bg-brand-500/20 text-brand-400' : 'hover:bg-white/5 text-slate-400 hover:text-white'}`}
+    <nav
+      className="fixed top-0 z-50 w-full border-b bg-[var(--bg-surface)]"
+      style={{
+        height: '56px',
+        borderColor: 'var(--border)',
+        boxShadow: 'var(--shadow-sm)',
+        backdropFilter: 'blur(12px)',
+      }}
+    >
+      <div className="mx-auto flex h-full max-w-[1200px] items-center gap-3 px-4 sm:px-6">
+        <div className="flex min-w-0 items-center gap-4">
+          <Link to={isLoggedIn ? '/dashboard' : '/'} className="font-display text-[20px] text-[var(--accent)]">
+            StackVault
+          </Link>
+
+          <div className="hidden items-center gap-1 md:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                to={item.to}
+                className={`inline-flex h-14 items-center border-b-2 px-3 text-[14px] font-medium ${
+                  item.active ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+                style={{ borderBottomColor: item.active ? 'var(--accent)' : 'transparent' }}
               >
-                <LayoutDashboard size={18} />
-                <span className="font-medium">Dashboard</span>
+                {item.label}
               </Link>
+            ))}
+          </div>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <button type="button" className="btn btn-ghost btn-icon md:hidden" aria-label="Open navigation menu">
+            <Menu size={18} style={{ color: 'var(--text-secondary)' }} />
+          </button>
 
-              <div className="w-px h-6 bg-white/10 mx-2" />
+          <ThemeToggle />
 
-              <div className="flex items-center space-x-3 px-3 py-1 bg-white/5 rounded-full border border-white/5">
-                <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-white/10">
-                  <User size={16} className="text-slate-400" />
-                </div>
-                <span className="text-sm font-semibold text-slate-300 pr-2">@{user.username}</span>
-              </div>
-
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+          {isLoggedIn ? (
+            <>
+              <button
+                type="button"
                 onClick={logout}
-                className="flex items-center space-x-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all font-medium ml-4"
+                className="btn btn-ghost btn-sm hidden sm:inline-flex"
               >
-                <LogOut size={18} />
-                <span>Log out</span>
-              </motion.button>
+                Logout
+              </button>
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-full border text-[13px] font-semibold"
+                style={{
+                  background: 'var(--accent-soft)',
+                  color: 'var(--accent)',
+                  borderColor: 'var(--accent-soft)',
+                }}
+                title={user?.username}
+              >
+                {user?.username?.charAt(0).toUpperCase()}
+              </div>
             </>
           ) : (
-            <div className="flex items-center space-x-4">
-              <Link to="/login" className="text-slate-400 hover:text-white transition-colors font-medium px-4">
-                Sign In
+            <>
+              <Link to="/login" className="btn btn-ghost btn-sm">
+                Login
               </Link>
-              <Link to="/register">
-                <motion.button 
-                  whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(139, 92, 246, 0.4)" }}
-                  whileTap={{ scale: 0.95 }}
-                  className="brand-gradient text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg"
-                >
-                  Get Started
-                </motion.button>
+              <Link to="/register" className="btn btn-primary btn-sm">
+                Register
               </Link>
-              <a 
-                href="https://github.com" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-              >
-              <Terminal size={20} />
-              </a>
-            </div>
+            </>
           )}
         </div>
       </div>

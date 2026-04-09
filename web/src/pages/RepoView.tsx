@@ -1,222 +1,197 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
-import { reposApi } from '../api/client';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Copy, GitBranch, GitCommit, Globe, Lock } from 'lucide-react';
+import { api, reposApi } from '../api/client';
+import { CodeViewer } from '../components/CodeViewer';
 import { FileTree } from '../components/FileTree';
 import { RepoSettingsModal } from '../components/RepoSettingsModal';
-import { motion } from 'framer-motion';
-import { Book, GitCommit, Settings, Code, Star, GitFork, Eye, Activity, Clock, Upload } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
+
+interface RepoData {
+  name: string;
+  description?: string | null;
+  is_private?: boolean;
+  created_at?: string;
+}
+
+interface CommitRecord {
+  id: string;
+  message: string;
+  author: string;
+  timestamp: string;
+  snapshot: Record<string, string>;
+}
+
+interface CommitResponse {
+  commits?: CommitRecord[];
+}
+
+interface BlobResponse {
+  content: string;
+}
 
 export const RepoView = () => {
-  const { username, repo } = useParams<{ username: string; repo: string }>();
-  const location = useLocation();
-  const [repoData, setRepoData] = useState<any>(null);
-  const [commits, setCommits] = useState<any[]>([]);
-  const [snapshot, setSnapshot] = useState<Record<string, string> | null>(null);
+  const { username = '', repo = '' } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [repoData, setRepoData] = useState<RepoData | null>(null);
+  const [commits, setCommits] = useState<CommitRecord[]>([]);
+  const [snapshot, setSnapshot] = useState<Record<string, string>>({});
+  const [blob, setBlob] = useState<BlobResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [blobLoading, setBlobLoading] = useState(false);
+  const [showClone, setShowClone] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const authUser = useAuthStore((state) => state.user);
+  const selectedPath = searchParams.get('path');
+
+  const filePaths = useMemo(() => Object.keys(snapshot).sort(), [snapshot]);
+  const readmePath = useMemo(
+    () => ['README.md', 'readme.md', 'Readme.md'].find((file) => filePaths.includes(file)) ?? null,
+    [filePaths],
+  );
+  const cloneUrl = `${window.location.origin}/${username}/${repo}.git`;
 
   useEffect(() => {
-    const fetchFullView = async () => {
+    const fetchRepo = async () => {
+      setLoading(true);
       try {
-        const repoDetails = await reposApi.get(username || '', repo || '');
-        setRepoData(repoDetails);
+        const [repoDetails, commitData] = await Promise.all([
+          reposApi.get(username, repo) as Promise<RepoData>,
+          reposApi.getCommits(username, repo, 1, 20) as Promise<CommitResponse>,
+        ]);
 
-        const commitsRes = await reposApi.getCommits(username || '', repo || '', 1, 10);
-        if (commitsRes.commits && commitsRes.commits.length > 0) {
-          setCommits(commitsRes.commits);
-          setSnapshot(commitsRes.commits[0].snapshot);
-        }
-      } catch (err) {
-        console.error(err);
+        setRepoData(repoDetails);
+        const nextCommits = commitData.commits ?? [];
+        setCommits(nextCommits);
+        setSnapshot(nextCommits[0]?.snapshot ?? {});
+      } catch (error) {
+        console.error(error);
+        setRepoData(null);
       } finally {
         setLoading(false);
       }
     };
-    fetchFullView();
-  }, [username, repo]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="w-12 h-12 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin" />
-    </div>
-  );
-  
-  if (!repoData) return (
-    <div className="max-w-7xl mx-auto px-6 py-20 text-center">
-      <div className="glass-panel p-12 inline-block">
-        <h2 className="text-2xl font-bold text-red-400 mb-2">Repository not found</h2>
-        <p className="text-slate-400">The repository you're looking for doesn't exist or is private.</p>
-        <Link to="/dashboard" className="mt-6 inline-block text-brand-400 hover:underline">Back to Dashboard</Link>
+    void fetchRepo();
+  }, [repo, username]);
+
+  useEffect(() => {
+    if (!selectedPath && readmePath) {
+      setSearchParams({ path: readmePath }, { replace: true });
+    }
+  }, [readmePath, selectedPath, setSearchParams]);
+
+  useEffect(() => {
+    const fetchBlob = async () => {
+      if (!selectedPath) {
+        setBlob(null);
+        return;
+      }
+
+      setBlobLoading(true);
+      try {
+        const response = (await api.get(`/repos/${username}/${repo}/blob?filepath=${encodeURIComponent(selectedPath)}`)) as BlobResponse;
+        setBlob(response);
+      } catch (error) {
+        console.error(error);
+        setBlob(null);
+      } finally {
+        setBlobLoading(false);
+      }
+    };
+
+    void fetchBlob();
+  }, [repo, selectedPath, username]);
+
+  if (loading) {
+    return <div className="px-6 py-16 text-[14px] text-[var(--text-muted)]">Loading repository...</div>;
+  }
+
+  if (!repoData) {
+    return (
+      <div className="px-6 py-16">
+        <div className="card mx-auto max-w-[520px] text-center">
+          <h1 className="mb-2 text-[22px] font-semibold text-[var(--text-primary)]">Repository not found</h1>
+          <p className="text-[14px] text-[var(--text-muted)]">This repository may be private or no longer available.</p>
+        </div>
       </div>
-    </div>
-  );
-
-  const isCommitsPage = location.pathname.endsWith('/commits');
+    );
+  }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className="max-w-7xl mx-auto px-6 py-8"
-    >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 brand-gradient rounded-2xl flex items-center justify-center shadow-lg shadow-brand-500/20">
-            <Book className="text-white w-6 h-6" />
+    <div>
+      <div className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2 text-[14px]">
+            <span className="text-[var(--text-muted)]">{username}</span>
+            <span className="text-[var(--text-muted)]">/</span>
+            <span className="font-display text-[17px] text-[var(--text-primary)]">{repoData.name}</span>
           </div>
-          <div>
-            <div className="flex items-center text-2xl font-black text-white tracking-tight">
-              <Link to={`/${username}`} className="text-slate-400 hover:text-brand-400 transition-colors">{username}</Link>
-              <span className="mx-2 text-slate-600">/</span>
-              <span className="text-white">{repoData.name}</span>
-              {repoData.is_private && (
-                <span className="ml-3 text-[10px] uppercase tracking-widest font-black border border-white/10 bg-white/5 py-1 px-3 rounded-full text-slate-500">Private</span>
-              )}
-            </div>
-            <p className="text-slate-400 mt-1 font-medium">{repoData.description || 'Seamlessly versioned with StackVault.'}</p>
-          </div>
-        </div>
 
-        <div className="flex items-center space-x-2">
-          {[
-            { icon: Eye, label: 'Watch', count: '1' },
-            { icon: Star, label: 'Star', count: '0' },
-            { icon: GitFork, label: 'Fork', count: '0' },
-          ].map((action, i) => (
-            <button key={i} className="flex items-center space-x-2 px-3 py-1.5 glass-panel text-xs font-bold text-slate-300 hover:bg-white/10 transition-colors">
-              <action.icon size={14} />
-              <span>{action.label}</span>
-              <span className="bg-white/10 px-1.5 py-0.5 rounded-md min-w-[20px]">{action.count}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-2 mb-8 bg-white/5 p-1 rounded-2xl w-fit border border-white/5">
-        <Link 
-          to={`/${username}/${repo}`} 
-          className={`flex items-center space-x-2 px-6 py-2 rounded-xl transition-all duration-200 ${!isCommitsPage ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'text-slate-400 hover:text-white'}`}
-        >
-          <Code size={18} />
-          <span className="font-bold">Code</span>
-        </Link>
-        <Link 
-          to={`/${username}/${repo}/commits`} 
-          className={`flex items-center space-x-2 px-6 py-2 rounded-xl transition-all duration-200 ${isCommitsPage ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'text-slate-400 hover:text-white'}`}
-        >
-          <GitCommit size={18} />
-          <span className="font-bold">Commits</span>
-        </Link>
-        <button 
-          onClick={() => setShowSettings(true)}
-          className="flex items-center space-x-2 px-6 py-2 rounded-xl text-slate-400 hover:text-white transition-all"
-        >
-          <Settings size={18} />
-          <span className="font-bold">Settings</span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-3 space-y-6">
-          <FileTree snapshot={snapshot || {}} username={username || ''} repo={repo || ''} />
-          
-          {commits.length > 0 && (
-            <div className="glass-panel overflow-hidden border border-white/10">
-              <div className="bg-dark-900/80 backdrop-blur-md px-6 py-4 border-b border-white/5 flex items-center justify-between">
-                <div className="flex items-center text-sm font-black text-white uppercase tracking-widest">
-                  <Upload className="w-5 h-5 mr-3 text-brand-400" />
-                  <span>Recent Pushes</span>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-[var(--text-muted)]">
+            <span className="inline-flex items-center gap-1">
+              <GitBranch size={14} />
+              main
+            </span>
+            <Link to={`/${username}/${repo}/commits`} className="inline-flex items-center gap-1 hover:text-[var(--text-primary)]">
+              <GitCommit size={14} />
+              {commits.length} commits
+            </Link>
+            <span className="inline-flex items-center gap-1">
+              {repoData.is_private ? <Lock size={14} /> : <Globe size={14} />}
+              {repoData.is_private ? 'Private' : 'Public'}
+            </span>
+            <div className="relative">
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => setShowClone((value) => !value)}>
+                <Copy size={14} />
+                Clone
+              </button>
+              {showClone ? (
+                <div className="absolute left-0 top-full z-10 mt-2 w-[280px] rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] p-3 text-[12px] text-[var(--text-secondary)] shadow-[var(--shadow-md)]">
+                  <div className="mb-1 text-[11px] uppercase tracking-[0.08em] text-[var(--text-muted)]">Clone URL</div>
+                  <div className="font-mono break-all text-[var(--text-primary)]">{cloneUrl}</div>
                 </div>
-                <Link 
-                  to={`/${username}/${repo}/commits`}
-                  className="text-xs font-bold text-brand-400 hover:text-brand-300"
-                >
-                  View all
-                </Link>
+              ) : null}
+            </div>
+            {authUser?.username === username ? (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowSettings(true)}>
+                Settings
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto grid max-w-[1400px] min-w-0 grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <div className="sticky top-[120px] hidden lg:block">
+          <FileTree snapshot={snapshot} selectedPath={selectedPath} onSelect={(path) => setSearchParams({ path })} />
+        </div>
+
+        <section className="min-w-0 bg-[var(--bg-surface)]">
+          {!selectedPath ? (
+            <div className="p-6">
+              <div className="mb-0 border-b border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3 text-[13px] font-semibold text-[var(--text-primary)]">
+                README.md
               </div>
-              <div className="divide-y divide-white/5">
-                {commits.slice(0, 5).map((commit, index) => (
-                  <motion.div 
-                    key={commit.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="hover:bg-white/[0.03] transition-all"
-                  >
-                    <Link 
-                      to={`/${username}/${repo}/commits?commit=${commit.id}`}
-                      className="flex items-center px-6 py-4"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center mr-4">
-                        <GitCommit className="w-4 h-4 text-brand-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-bold text-slate-300 truncate">
-                          {commit.message}
-                        </div>
-                        <div className="text-xs text-slate-500 flex items-center space-x-2">
-                          <span>{commit.author}</span>
-                          <span>·</span>
-                          <span>{new Date(commit.timestamp).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                      <div className="text-xs font-mono text-slate-600">
-                        {commit.id.slice(0, 7)}
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
+              <div className="p-4 text-[15px] leading-[1.7] text-[var(--text-secondary)]">
+                {readmePath ? snapshot[readmePath] : 'No README available for this repository yet.'}
               </div>
             </div>
+          ) : blobLoading ? (
+            <div className="p-6 text-[14px] text-[var(--text-muted)]">Loading file...</div>
+          ) : (
+            <CodeViewer content={blob?.content ?? ''} filename={selectedPath} />
           )}
-        </div>
-        <div className="space-y-6">
-          <div className="glass-panel p-6">
-            <h3 className="text-sm font-black text-white uppercase tracking-wider mb-4">About</h3>
-            <p className="text-slate-400 text-sm leading-relaxed mb-6">
-              {repoData.description || 'No description, website, or topics provided.'}
-            </p>
-            <div className="flex items-center space-x-2 text-xs text-slate-500 font-bold">
-              <Activity size={12} />
-              <span>Last active {new Date(repoData.created_at).toLocaleDateString()}</span>
-            </div>
-          </div>
-          
-          <div className="glass-panel p-6">
-            <h3 className="text-sm font-black text-white uppercase tracking-wider mb-4">Languages</h3>
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-blue-400">TypeScript</span>
-                  <span className="text-slate-500">82.4%</span>
-                </div>
-                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 rounded-full" style={{ width: '82.4%' }} />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-purple-400">CSS</span>
-                  <span className="text-slate-500">17.6%</span>
-                </div>
-                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-purple-500 rounded-full" style={{ width: '17.6%' }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        </section>
       </div>
 
       <RepoSettingsModal
         repo={repoData}
-        username={username || ''}
-        reponame={repo || ''}
+        username={username}
+        reponame={repo}
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
       />
-    </motion.div>
+    </div>
   );
 };
-

@@ -1,123 +1,81 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { AlertTriangle, Loader2 } from 'lucide-react';
+import { FormEvent, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuthStore } from '../store/authStore';
-import { motion } from 'framer-motion';
-import { User, Mail, Lock, ArrowRight, Boxes } from 'lucide-react';
 
 export const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const login = useAuthStore(s => s.login);
+  const [loading, setLoading] = useState(false);
+  const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
-      const data = await api.post('/auth/register', { username, email, password });
+      const data = (await api.post('/auth/register', { username, email, password })) as {
+        user: Parameters<typeof login>[0];
+        token: string;
+      };
       login(data.user, data.token);
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Error registering');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error registering');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="min-h-[80vh] flex items-center justify-center p-4"
-    >
-      <div className="glass-panel w-full max-w-md p-10 relative overflow-hidden">
-        {/* Glow effect */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 blur-[60px] rounded-full -mr-16 -mt-16" />
-        
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 brand-gradient rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-brand-500/20">
-            <Boxes className="text-white w-10 h-10" />
-          </div>
-          <h2 className="text-4xl font-black text-white tracking-tight">Join StackVault</h2>
-          <p className="text-slate-400 mt-2 font-medium">Start versioning with speed and style</p>
+    <div className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-[var(--bg-base)] px-4 py-8">
+      <div className="card animate-scale-in w-full max-w-[420px] rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-lg)] sm:p-10">
+        <div className="text-center">
+          <Link to="/" className="font-display text-[22px] text-[var(--accent)]">
+            StackVault
+          </Link>
+          <h1 className="mt-6 font-display text-[28px] text-[var(--text-primary)]">Create account</h1>
+          <p className="mt-2 text-[14px] text-[var(--text-muted)]">Set up your workspace and start versioning.</p>
         </div>
 
-        {error && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl mb-8 text-sm font-medium flex items-center space-x-3"
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-            <span>{error}</span>
-          </motion.div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Username</label>
-            <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-brand-400 transition-colors" size={20} />
-              <input 
-                type="text" 
-                value={username} 
-                onChange={e => setUsername(e.target.value)}
-                placeholder="johndoe"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-500/50 focus:bg-white/10 transition-all font-medium" 
-                required 
-              />
+        <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
+          {error ? (
+            <div className="flex gap-2 rounded-[var(--radius-md)] border px-3 py-3 text-[13px]" style={{ background: 'var(--red-soft)', borderColor: 'var(--red)', color: 'var(--red)' }}>
+              <AlertTriangle size={16} />
+              <span>{error}</span>
             </div>
+          ) : null}
+
+          <div>
+            <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">Username</label>
+            <input className="input input-lg" value={username} onChange={(event) => setUsername(event.target.value)} required />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-            <div className="relative group">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-brand-400 transition-colors" size={20} />
-              <input 
-                type="email" 
-                value={email} 
-                onChange={e => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-500/50 focus:bg-white/10 transition-all font-medium" 
-                required 
-              />
-            </div>
+          <div>
+            <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">Email</label>
+            <input className="input input-lg" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Password</label>
-            <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-brand-400 transition-colors" size={20} />
-              <input 
-                type="password" 
-                value={password} 
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-500/50 focus:bg-white/10 transition-all font-medium" 
-                required 
-              />
-            </div>
+          <div>
+            <label className="mb-1 block text-[13px] font-medium text-[var(--text-secondary)]">Password</label>
+            <input className="input input-lg" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
           </div>
 
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            type="submit" 
-            className="w-full brand-gradient text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-brand-500/20 flex items-center justify-center space-x-2 text-lg"
-          >
-            <span>Create Account</span>
-            <ArrowRight size={20} />
-          </motion.button>
+          <button type="submit" className="btn btn-primary btn-lg w-full justify-center" disabled={loading}>
+            {loading ? <Loader2 size={16} className="animate-spin" /> : null}
+            Create account
+          </button>
         </form>
 
-        <div className="mt-10 pt-8 border-t border-white/5 text-center">
-          <p className="text-sm text-slate-500 font-medium">
-            Already a member? <Link to="/login" className="text-brand-400 hover:text-brand-300 font-bold ml-1">Sign in</Link>
-          </p>
-        </div>
+        <p className="mt-6 text-center text-[14px] text-[var(--text-muted)]">
+          Already have an account? <Link to="/login" className="text-[var(--accent)]">Log in</Link>
+        </p>
       </div>
-    </motion.div>
+    </div>
   );
 };
-
