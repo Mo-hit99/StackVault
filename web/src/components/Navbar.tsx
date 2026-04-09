@@ -1,4 +1,4 @@
-import { Menu, Search } from 'lucide-react';
+import { Menu} from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { ThemeToggle } from './ThemeToggle';
