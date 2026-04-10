@@ -1,8 +1,8 @@
 # StackVault
 
-![License](https://img.shields.io/badge/license-MIT-blue.StackVault)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-StackVault is a modern version control system. Manage your code locally with the CLI, sync to a remote server, and browse repositories through a beautiful web interface.
+StackVault is a modern version control system. Manage your code locally with the `gexra` CLI, sync to a remote server, and browse repositories through a web interface.
 
 ## Features
 
@@ -175,7 +175,7 @@ gexra clone https://server/repo --path src  # Clone only src/
 
 ## Project Structure
 
-Each Gexra project contains a `.gexra/` folder that stores:
+Each repository initialized with `gexra` contains a `.gexra/` folder that stores:
 - Commits history
 - File blobs (snapshots)
 - Config (remote URL, auth token)
@@ -248,11 +248,12 @@ The web app runs at `http://localhost:5173`:
 1. mkdir project && cd project
 2. gexra init
 3. gexra add . && gexra commit -m "Initial commit"
-4. gexra login email password --url http://localhost:5000
-5. gexra remote add origin http://localhost:5000
-6. gexra create-repo my-project
-7. gexra push
-8. Open http://localhost:5173 to view your repo
+4. gexra register username email password --url http://localhost:5000
+5. gexra login email password --url http://localhost:5000
+6. gexra remote add origin http://localhost:5000
+7. gexra create-repo my-project
+8. gexra push origin main
+9. Open http://localhost:5173 to view your repo
 ```
 
 ## Troubleshooting

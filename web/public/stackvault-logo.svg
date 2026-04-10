@@ -2,13 +2,13 @@
   <title>StackVault</title>
   <defs>
     <linearGradient id="stackvault-accent" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FF8A3D" />
-      <stop offset="1" stop-color="#E8590C" />
+      <stop offset="0" stop-color="#F2BEDF" />
+      <stop offset="1" stop-color="#E491C9" />
     </linearGradient>
   </defs>
   <rect width="64" height="64" rx="18" fill="#1A1410" />
   <path d="M18 18.5C18 16.567 19.567 15 21.5 15h21C44.433 15 46 16.567 46 18.5v2.757c0 1.115-.531 2.163-1.431 2.824l-9.5 6.978a5.25 5.25 0 0 1-6.138 0l-9.5-6.978A3.5 3.5 0 0 1 18 21.257V18.5Z" fill="url(#stackvault-accent)" />
   <path d="M20 28.5c0-.828.672-1.5 1.5-1.5h21c.828 0 1.5.672 1.5 1.5v2.265c0 .477-.227.925-.611 1.208l-8.75 6.427a4.5 4.5 0 0 1-5.278 0l-8.75-6.427A1.5 1.5 0 0 1 20 30.765V28.5Z" fill="#FDF0E8" opacity=".92" />
-  <path d="M22 37.5c0-.828.672-1.5 1.5-1.5h17c.828 0 1.5.672 1.5 1.5v1.548c0 .477-.227.925-.611 1.208l-7.25 5.326a3.75 3.75 0 0 1-4.438 0l-7.09-5.204A1.5 1.5 0 0 1 22 39.17V37.5Z" fill="#E8590C" />
+  <path d="M22 37.5c0-.828.672-1.5 1.5-1.5h17c.828 0 1.5.672 1.5 1.5v1.548c0 .477-.227.925-.611 1.208l-7.25 5.326a3.75 3.75 0 0 1-4.438 0l-7.09-5.204A1.5 1.5 0 0 1 22 39.17V37.5Z" fill="#E491C9" />
   <rect x="26" y="47" width="12" height="3" rx="1.5" fill="#DDD5C8" />
 </svg>

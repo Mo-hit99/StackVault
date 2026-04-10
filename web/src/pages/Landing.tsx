@@ -76,7 +76,7 @@ export const Landing = () => {
         </div>
 
         <div className="space-y-2 font-mono text-[13px] leading-[1.7]">
-          {['sv init', 'sv add .', 'sv commit -m "first commit"', 'sv push origin main'].map((command) => (
+          {['gexra init', 'gexra add .', 'gexra commit -m "first commit"', 'gexra push origin main'].map((command) => (
             <div key={command}>
               <span style={{ color: 'var(--accent)' }}>$ </span>
               <span className="terminal-text">{command}</span>
