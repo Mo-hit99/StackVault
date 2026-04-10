@@ -126,8 +126,8 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="mx-auto flex max-w-[1400px]">
-      <aside className="sticky top-14 hidden h-[calc(100vh-56px)] w-[220px] shrink-0 border-r border-[var(--border)] bg-[var(--bg-surface)] px-4 py-6 lg:block">
+    <div className="mx-auto flex max-w-[1400px] flex-col lg:flex-row">
+      <aside className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-4 py-5 lg:sticky lg:top-14 lg:h-[calc(100vh-56px)] lg:w-[220px] lg:shrink-0 lg:border-b-0 lg:border-r lg:px-4 lg:py-6">
         <div className="mb-5 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[18px] font-semibold text-[var(--accent)]">
             {user.username.charAt(0).toUpperCase()}
@@ -147,7 +147,7 @@ export const Dashboard = () => {
 
         <hr className="divider my-4" />
 
-        <div className="space-y-1">
+        <div className="grid gap-1 sm:grid-cols-3 lg:grid-cols-1">
           {['Repos', 'Starred', 'Settings'].map((item, index) => {
             const active = index === 0;
             return (
@@ -167,7 +167,7 @@ export const Dashboard = () => {
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 px-4 py-8 sm:px-6 lg:px-10">
+      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-[900px]">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-[22px] font-bold text-[var(--text-primary)]">Your Repositories</h1>
@@ -179,7 +179,7 @@ export const Dashboard = () => {
 
           <div className="mb-6">
             <input
-              className="input w-full max-w-[280px]"
+              className="input w-full sm:max-w-[280px]"
               placeholder="Search repositories..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}

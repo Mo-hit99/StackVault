@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { Copy, GitBranch, GitCommit, Globe, Lock } from 'lucide-react';
+import { ChevronDown, Copy, GitBranch, GitCommit, Globe, Lock } from 'lucide-react';
 import { api, reposApi } from '../api/client';
 import { CodeViewer } from '../components/CodeViewer';
 import { FileTree } from '../components/FileTree';
@@ -41,6 +41,7 @@ export const RepoView = () => {
   const [blobLoading, setBlobLoading] = useState(false);
   const [showClone, setShowClone] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showMobileFiles, setShowMobileFiles] = useState(false);
   const authUser = useAuthStore((state) => state.user);
   const selectedPath = searchParams.get('path');
 
@@ -103,8 +104,12 @@ export const RepoView = () => {
     void fetchBlob();
   }, [repo, selectedPath, username]);
 
+  useEffect(() => {
+    setShowMobileFiles(false);
+  }, [selectedPath]);
+
   if (loading) {
-    return <div className="px-6 py-16 text-[14px] text-[var(--text-muted)]">Loading repository...</div>;
+    return <div className="px-4 py-16 text-[14px] text-[var(--text-muted)] sm:px-6">Loading repository...</div>;
   }
 
   if (!repoData) {
@@ -122,10 +127,10 @@ export const RepoView = () => {
     <div>
       <div className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2 text-[14px]">
-            <span className="text-[var(--text-muted)]">{username}</span>
+          <div className="flex flex-wrap items-center gap-2 text-[13px] sm:text-[14px]">
+            <span className="break-all text-[var(--text-muted)]">{username}</span>
             <span className="text-[var(--text-muted)]">/</span>
-            <span className="font-display text-[17px] text-[var(--text-primary)]">{repoData.name}</span>
+            <span className="break-all font-display text-[17px] text-[var(--text-primary)]">{repoData.name}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-[var(--text-muted)]">
@@ -147,7 +152,7 @@ export const RepoView = () => {
                 Clone
               </button>
               {showClone ? (
-                <div className="absolute left-0 top-full z-10 mt-2 w-[280px] rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] p-3 text-[12px] text-[var(--text-secondary)] shadow-[var(--shadow-md)]">
+                <div className="absolute left-0 top-full z-10 mt-2 w-[min(280px,calc(100vw-2rem))] rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] p-3 text-[12px] text-[var(--text-secondary)] shadow-[var(--shadow-md)]">
                   <div className="mb-1 text-[11px] uppercase tracking-[0.08em] text-[var(--text-muted)]">Clone URL</div>
                   <div className="font-mono break-all text-[var(--text-primary)]">{cloneUrl}</div>
                 </div>
@@ -163,22 +168,47 @@ export const RepoView = () => {
       </div>
 
       <div className="mx-auto grid max-w-[1400px] min-w-0 grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <div className="border-b border-[var(--border)] bg-[var(--bg-elevated)] lg:hidden">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-4 py-3 text-left text-[13px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]"
+            onClick={() => setShowMobileFiles((current) => !current)}
+            aria-expanded={showMobileFiles}
+          >
+            <span>Files</span>
+            <ChevronDown size={16} className={showMobileFiles ? 'rotate-180' : ''} />
+          </button>
+          {showMobileFiles ? (
+            <FileTree
+              snapshot={snapshot}
+              selectedPath={selectedPath}
+              onSelect={(path) => setSearchParams({ path })}
+              className="max-h-[50vh] border-t border-[var(--border)]"
+            />
+          ) : null}
+        </div>
+
         <div className="sticky top-[120px] hidden lg:block">
-          <FileTree snapshot={snapshot} selectedPath={selectedPath} onSelect={(path) => setSearchParams({ path })} />
+          <FileTree
+            snapshot={snapshot}
+            selectedPath={selectedPath}
+            onSelect={(path) => setSearchParams({ path })}
+            className="h-[calc(100vh-120px)] border-r border-[var(--border)]"
+          />
         </div>
 
         <section className="min-w-0 bg-[var(--bg-surface)]">
           {!selectedPath ? (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="mb-0 border-b border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3 text-[13px] font-semibold text-[var(--text-primary)]">
                 README.md
               </div>
-              <div className="p-4 text-[15px] leading-[1.7] text-[var(--text-secondary)]">
+              <div className="overflow-x-auto p-4 text-[14px] leading-[1.7] text-[var(--text-secondary)] sm:text-[15px]">
                 {readmePath ? snapshot[readmePath] : 'No README available for this repository yet.'}
               </div>
             </div>
           ) : blobLoading ? (
-            <div className="p-6 text-[14px] text-[var(--text-muted)]">Loading file...</div>
+            <div className="p-4 text-[14px] text-[var(--text-muted)] sm:p-6">Loading file...</div>
           ) : (
             <CodeViewer content={blob?.content ?? ''} filename={selectedPath} />
           )}

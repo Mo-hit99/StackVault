@@ -20,6 +20,7 @@ export interface FileTreeProps {
   snapshot: Record<string, string>;
   selectedPath?: string | null;
   onSelect: (path: string) => void;
+  className?: string;
 }
 
 const sortTree = (nodes: TreeNode[]): TreeNode[] =>
@@ -166,7 +167,7 @@ const TreeItem = ({ node, depth, expandedFolders, selectedPath, toggleFolder, on
   );
 };
 
-export const FileTree = ({ snapshot, selectedPath, onSelect }: FileTreeProps) => {
+export const FileTree = ({ snapshot, selectedPath, onSelect, className = '' }: FileTreeProps) => {
   const files = useMemo(
     () =>
       Object.keys(snapshot)
@@ -206,7 +207,7 @@ export const FileTree = ({ snapshot, selectedPath, onSelect }: FileTreeProps) =>
 
   return (
     <aside
-      className="h-[calc(100vh-120px)] overflow-y-auto border-r border-[var(--border)] bg-[var(--bg-elevated)] px-2 py-3"
+      className={`overflow-y-auto bg-[var(--bg-elevated)] px-2 py-3 ${className}`}
       style={{ top: '120px' }}
     >
       <div className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">
