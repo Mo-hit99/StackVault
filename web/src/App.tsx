@@ -1,8 +1,11 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
 import { AnimatePresence } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import { useAuthStore } from './store/authStore';
+
+const SentryRoutes = Sentry.withSentryRouting(Routes);
 
 const Landing = lazy(() => import('./pages/Landing').then((module) => ({ default: module.Landing })));
 const Docs = lazy(() => import('./pages/Docs').then((module) => ({ default: module.Docs })));
@@ -48,7 +51,7 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Suspense fallback={<RouteLoadingFallback />}>
-        <Routes location={location} key={location.pathname}>
+        <SentryRoutes location={location} key={location.pathname}>
           <Route path="/" element={<Landing />} />
           <Route path="/docs" element={<Docs />} />
           <Route element={<PublicOnlyRoute />}>
@@ -61,7 +64,7 @@ const AnimatedRoutes = () => {
           <Route path="/:username/:repo" element={<RepoView />} />
           <Route path="/:username/:repo/commits" element={<CommitLog />} />
           <Route path="/:username/:repo/blob" element={<FileView />} />
-        </Routes>
+        </SentryRoutes>
       </Suspense>
     </AnimatePresence>
   );
