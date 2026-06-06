@@ -44,23 +44,6 @@ if (container) {
   ReactDOM.createRoot(container).render(
     <React.StrictMode>
       <App />
-      <div style={{ position: 'fixed', bottom: '20px', left: '20px', zIndex: 99999 }}>
-        <button
-          type="button"
-          onClick={() => {
-            throw new Error('This is your first error!');
-          }}
-          className="btn btn-danger btn-lg shadow-lg transition-transform active:scale-95"
-          style={{
-            backgroundColor: 'var(--red)',
-            color: 'white',
-            borderColor: 'var(--red)',
-            boxShadow: '0 4px 12px rgba(217, 64, 64, 0.3)',
-          }}
-        >
-          Break the world
-        </button>
-      </div>
     </React.StrictMode>,
   );
 }
